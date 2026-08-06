@@ -70,7 +70,7 @@ class AppState(
     var autoDownloadBookmarks by mutableStateOf(false)
     var sponsorCategories by mutableStateOf(com.foundation.scpreader.playback.SponsorCategory.DEFAULT_ENABLED)
 
-    // ---- in-app updates (GitHub Releases, public repo — no auth needed) ----
+    // ---- in-app updates (GitHub Releases, public repo - no auth needed) ----
     var updateStatus by mutableStateOf<UpdateCheckResult>(UpdateCheckResult.Idle); private set
     var updateDownload by mutableStateOf<UpdateDownloadState>(UpdateDownloadState.Idle); private set
     var updateBannerDismissed by mutableStateOf(false)
@@ -107,7 +107,7 @@ class AppState(
     var searchSort by mutableStateOf(SortMode.Relevance)
     var audioOnly by mutableStateOf(false)
     var libTab by mutableStateOf("all")
-    /** Library "browse offline by class" filter — an object class name, or "all". */
+    /** Library "browse offline by class" filter - an object class name, or "all". */
     var libClassFilter by mutableStateOf("all")
 
     // Full-screen narration player overlay.
@@ -139,7 +139,7 @@ class AppState(
     private var feedRaw = listOf<ScpItem>()
     private var feedCursor: String? = null
     var feedHasMore by mutableStateOf(false); private set
-    /** True when the device has no internet connection — surfaced as a banner/message on Home. */
+    /** True when the device has no internet connection - surfaced as a banner/message on Home. */
     var offline by mutableStateOf(false); private set
     /** Wall-clock time of the last successful feed load, for the offline screen's "last synced" line. */
     var lastFeedSyncAt by mutableStateOf<Long?>(null); private set
@@ -252,7 +252,7 @@ class AppState(
     )
 
     /**
-     * Toggle a branch in the discovery set. English can't be removed to empty — at least one branch
+     * Toggle a branch in the discovery set. English can't be removed to empty - at least one branch
      * must remain, so removing the last one is a no-op. Reloads the feed/hero to reflect the change.
      */
     fun toggleBranch(code: String) {
@@ -391,8 +391,8 @@ class AppState(
     fun clearSearchRecents() { viewModelScope.launch { repo.clearSearchRecents() } }
 
     /**
-     * Fetch top-rated SCPs for the search zero-state. Idempotent — a no-op once loaded or while a
-     * fetch is in flight — and fails soft (sets [searchTopRatedError]) so an offline open just
+     * Fetch top-rated SCPs for the search zero-state. Idempotent - a no-op once loaded or while a
+     * fetch is in flight - and fails soft (sets [searchTopRatedError]) so an offline open just
      * falls back to recents / a message rather than crashing.
      */
     fun loadSearchTopRated() {
@@ -528,7 +528,7 @@ class AppState(
         val pageId = article?.pageId ?: return
         if (!wikidotLoggedIn) { voteLoginPromptOpen = true; return }
         when {
-            readerVote == points -> {}                      // already your vote — removal is the Clear button
+            readerVote == points -> {}                      // already your vote - removal is the Clear button
             readerVote != null -> voteChangeTarget = points // switching → confirm, matching the site
             else -> viewModelScope.launch { applyRate(pageId, points) }
         }
@@ -666,7 +666,7 @@ class AppState(
             val pos = repo.resumePosition(resolved.mediaId)
             player.play(resolved, playable.uri, pos, playable.origin, playable.cleaned)
             // Live SponsorBlock skipping applies ONLY to YouTube streaming. A downloaded file is
-            // either already trimmed (clean) or, if trim failed, left as-is — either way its
+            // either already trimmed (clean) or, if trim failed, left as-is - either way its
             // timestamps wouldn't match the original, so we never live-skip a local file.
             val vid = resolved.videoId
             val segments = if (playable.origin == com.foundation.scpreader.playback.PlaybackOrigin.YOUTUBE && vid != null)
@@ -707,7 +707,7 @@ class AppState(
     // ---- "What's new" ----
     /**
      * After an update (stored seen-version differs from the running build), pull this build's GitHub
-     * release description and show it once. A fresh install is recorded silently — no sheet, since
+     * release description and show it once. A fresh install is recorded silently - no sheet, since
      * there's nothing "new" to a first-time user.
      */
     private fun maybeShowWhatsNew() {
@@ -793,13 +793,13 @@ class AppState(
         friendsLoading = true; friendsError = null
         viewModelScope.launch {
             if (friendCode == null) runCatching { friends.ensureRegistered() }.onSuccess { friendCode = it }
-            // friends + recommendations are independent — fetch them concurrently.
+            // friends + recommendations are independent - fetch them concurrently.
             runCatching {
                 val friendsDef = async { friends.friends() }
                 val recsDef = async { friends.recommendations() }
                 friendsList = friendsDef.await()
                 recommendations = recsDef.await()
-                // Opening the Friends tab counts as seeing them — stop the poller re-notifying.
+                // Opening the Friends tab counts as seeing them - stop the poller re-notifying.
                 recommendations.maxOfOrNull { it.id }?.let { friends.setLastSeenRecId(it.toLong()) }
             }.onFailure { friendsError = it.message ?: "Couldn't reach the server" }
             friendsLoading = false
@@ -834,7 +834,7 @@ class AppState(
             runCatching { friends.removeFriend(code) }
                 .onSuccess {
                     friendsList = friendsList.filterNot { it.friend_code == code }
-                    // Their recommendations are deleted server-side too — drop them locally to match.
+                    // Their recommendations are deleted server-side too - drop them locally to match.
                     recommendations = recommendations.filterNot { it.from_code == code }
                     postFriendsNotice("Removed")
                 }

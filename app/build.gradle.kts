@@ -10,7 +10,7 @@ plugins {
 
 // Release signing credentials, in priority order:
 //  1. keystore.properties at the project root (local dev; gitignored, never committed)
-//  2. KEYSTORE_FILE/KEYSTORE_PASSWORD/KEY_ALIAS/KEY_PASSWORD env vars (CI — see release.yml)
+//  2. KEYSTORE_FILE/KEYSTORE_PASSWORD/KEY_ALIAS/KEY_PASSWORD env vars (CI - see release.yml)
 // Neither present is fine: releaseSigningConfig stays null and the release build type falls back
 // to debug signing below, so the build still succeeds for contributors without the keystore.
 val keystoreProperties = Properties().apply {
@@ -69,7 +69,7 @@ android {
         }
         debug {
             // Ship debug as a SEPARATE app (com.foundation.scpreader.debug) so it installs
-            // side-by-side with a release install — no downgrade or signature conflicts, and you
+            // side-by-side with a release install - no downgrade or signature conflicts, and you
             // can run both at once. The distinct label makes them tell-apart-able on the launcher.
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"

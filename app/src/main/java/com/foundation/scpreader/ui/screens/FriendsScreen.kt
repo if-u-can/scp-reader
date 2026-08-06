@@ -196,7 +196,7 @@ private fun RecCard(rec: FriendsApi.Rec, onClick: () -> Unit) {
 @Composable
 fun RecommendSheet(app: AppState) {
     val c = LocalScpScheme.current
-    // scrim — tap outside to dismiss
+    // scrim - tap outside to dismiss
     Box(Modifier.fillMaxSize().background(c.scrim).clickable { app.closeRecommendSheet() }, contentAlignment = Alignment.BottomCenter) {
         Column(
             Modifier.fillMaxWidth().clickable(enabled = false) {}.clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))

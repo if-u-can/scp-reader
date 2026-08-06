@@ -42,7 +42,7 @@ import com.foundation.scpreader.ui.theme.LocalScpScheme
 /**
  * Bottom sheet showing the current build's GitHub release description (the "What's new" notes).
  * The body is GitHub-flavoured Markdown; [ReleaseNotes] renders the small subset releases use
- * (headings, bold section labels, bullet lists) — enough to read cleanly without a full parser.
+ * (headings, bold section labels, bullet lists) - enough to read cleanly without a full parser.
  */
 @Composable
 fun WhatsNewSheet(app: AppState) {

@@ -5,7 +5,7 @@ object SponsorTrim {
 
     /**
      * Given skip [segments] and the total media length [totalMs], returns the (start,end) ranges to
-     * keep — i.e. the complement of the merged segments over [0, totalMs]. Overlapping segments are
+     * keep - i.e. the complement of the merged segments over [0, totalMs]. Overlapping segments are
      * merged; sub-200ms slivers are dropped. Empty result means "nothing worth trimming".
      */
     fun keepRanges(segments: List<SkipSegment>, totalMs: Long): List<Pair<Long, Long>> {

@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * Populated live from the CROM API. Heavy content (article body) is fetched on demand.
  */
 data class ScpItem(
-    val url: String,                 // canonical wikidot URL — stable unique id
+    val url: String,                 // canonical wikidot URL - stable unique id
     val number: String,              // display id, e.g. "SCP-173" or "TALE" / "GoI"
     val title: String,               // wikidot page title (for SCPs this is usually just the number)
     val altTitle: String? = null,    // descriptive listing name (CROM alternateTitles), e.g. "The Sculpture"
@@ -57,8 +57,8 @@ data class InlineSpan(
     @SerialName("u") val underline: Boolean = false,
     @SerialName("s") val strike: Boolean = false,
     @SerialName("l") val link: String? = null,   // absolute href when this run is a hyperlink
-    @SerialName("r") val redacted: Boolean = false, // censored run — rendered as a tap-to-reveal black bar
-    @SerialName("fn") val footnote: String? = null, // footnote marker run — text is the number, this is its body
+    @SerialName("r") val redacted: Boolean = false, // censored run - rendered as a tap-to-reveal black bar
+    @SerialName("fn") val footnote: String? = null, // footnote marker run - text is the number, this is its body
 )
 
 /** One pane of a wiki `[[tabview]]`: [label] is the tab title, [blocks] its content. */
@@ -105,12 +105,12 @@ data class Article(
     val crosslinks: List<ScpItem> = emptyList(),
     /**
      * True when the source page ships a custom visual theme (bespoke CSS/fonts/backgrounds) that the
-     * native block renderer can't reproduce — gates the reader's "View original theme" web action.
+     * native block renderer can't reproduce - gates the reader's "View original theme" web action.
      */
     val hasCustomTheme: Boolean = false,
     /** Wikidot numeric page id, needed to cast a rating; null when unknown (offline/older rows). */
     val pageId: String? = null,
-    /** True for plus/minus (+1/-1) pages — gates whether the reader shows vote arrows. */
+    /** True for plus/minus (+1/-1) pages - gates whether the reader shows vote arrows. */
     val pmRating: Boolean = false,
 )
 
@@ -122,7 +122,7 @@ enum class NarrationSource { YOUTUBE, PODCAST }
 
 /**
  * A narration episode. [audioUrl] is a *resolved / playable* URI and may be ephemeral (YouTube
- * stream URLs expire) — it is NOT a stable identity. Use [mediaId] as the stable key for playback
+ * stream URLs expire) - it is NOT a stable identity. Use [mediaId] as the stable key for playback
  * identity, resume position, downloads and SponsorBlock lookups.
  */
 data class Episode(

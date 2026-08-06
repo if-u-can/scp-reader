@@ -60,7 +60,7 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
 /**
  * v7 -> v8: add the descriptive listing name (`altTitle`) to every stored-article table, so the
  * Library/Downloads/Recents lists can show the SCP's real name as the primary label the same way
- * the live feed and search do. Nullable — old rows fall back to the wikidot title.
+ * the live feed and search do. Nullable - old rows fall back to the wikidot title.
  */
 val MIGRATION_7_8 = object : Migration(7, 8) {
     override fun migrate(db: SupportSQLiteDatabase) {

@@ -64,7 +64,7 @@ class CromApi(private val client: OkHttpClient) {
     /**
      * Top-rated EN-branch pages, optionally restricted to a wikidot tag (e.g. "scp", "tale").
      * When [createdAfter] (an ISO-8601 instant) is given, only pages created on or after that
-     * time are considered — used to surface the highest-rated pages of the last week.
+     * time are considered - used to surface the highest-rated pages of the last week.
      */
     suspend fun topRated(tag: String = "scp", after: String? = null, first: Int = 20, createdAfter: String? = null): Page = withContext(Dispatchers.IO) {
         val afterArg = if (after != null) ", after: \"$after\"" else ""
@@ -102,7 +102,7 @@ class CromApi(private val client: OkHttpClient) {
     }
 
     /**
-     * Prefix search by SCP number, top-rated first — lets a partial number ("17", "0") narrow the
+     * Prefix search by SCP number, top-rated first - lets a partial number ("17", "0") narrow the
      * archive the way the wiki search does, which the token-based [search] can't. For 1–2 digit
      * input we also try the zero-padded slug (e.g. "17" → scp-017) so the exact small number shows.
      */
@@ -139,8 +139,8 @@ class CromApi(private val client: OkHttpClient) {
 
     /**
      * All known translations of the article at [url] across every branch CROM indexes, keyed by
-     * url (deduped, excluding [url] itself). Collected from the page's own `translations`, plus —
-     * when [url] is itself a translation — its original (`translationOf`) and that original's other
+     * url (deduped, excluding [url] itself). Collected from the page's own `translations`, plus -
+     * when [url] is itself a translation - its original (`translationOf`) and that original's other
      * `translations` (the sibling set). Used to offer "read this in your branch".
      */
     suspend fun translations(url: String): List<TranslationLink> = withContext(Dispatchers.IO) {

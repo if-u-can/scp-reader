@@ -79,7 +79,7 @@ class PlayerController(context: Context, scope: CoroutineScope) {
     }
 
     /** The live player, for [com.foundation.scpreader.playback.PlaybackService] to wrap in a
-     *  MediaSession — same process, so the session reflects this instance directly. */
+     *  MediaSession - same process, so the session reflects this instance directly. */
     val exoPlayer: ExoPlayer get() = player
 
     private val _state = MutableStateFlow(PlaybackState())

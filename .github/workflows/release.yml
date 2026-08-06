@@ -5,8 +5,8 @@ on:
     inputs:
       version:
         # GitHub can't pre-fill this field with the latest release (workflow_dispatch defaults are
-        # static YAML), so leaving it blank auto-increments the patch instead — see "Resolve version".
-        description: "Release version — blank = auto-bump patch from the latest release (0.2.0 -> 0.2.1). Type an explicit version to override, e.g. 0.3.0."
+        # static YAML), so leaving it blank auto-increments the patch instead - see "Resolve version".
+        description: "Release version - blank = auto-bump patch from the latest release (0.2.0 -> 0.2.1). Type an explicit version to override, e.g. 0.3.0."
         required: false
         default: ""
 
@@ -58,7 +58,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Optional repo secrets (see SIGNING.md). If KEYSTORE_BASE64 isn't set — e.g. on a fork —
+      # Optional repo secrets (see SIGNING.md). If KEYSTORE_BASE64 isn't set - e.g. on a fork -
       # this step is skipped and app/build.gradle.kts falls back to debug signing, so the build
       # still succeeds; it just won't produce an installable-as-update signed APK.
       - name: Decode signing keystore

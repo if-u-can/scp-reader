@@ -17,7 +17,7 @@ private const val API_VERSION = "2022-11-28"
 data class GithubAsset(
     val id: Long,
     val name: String,
-    val url: String, // API asset URL — used with an unauthenticated request; works on a public repo
+    val url: String, // API asset URL - used with an unauthenticated request; works on a public repo
 )
 
 @Serializable
@@ -47,7 +47,7 @@ sealed interface UpdateDownloadState {
 
 /**
  * Checks ThePixelPro366/scp-reader's GitHub Releases for a newer version and downloads the release
- * APK asset. The repo is public, so every call is unauthenticated — no credentials are stored or
+ * APK asset. The repo is public, so every call is unauthenticated - no credentials are stored or
  * sent anywhere.
  */
 class UpdateManager(private val client: OkHttpClient) {
@@ -64,7 +64,7 @@ class UpdateManager(private val client: OkHttpClient) {
                 .build()
             client.newCall(req).execute().use { resp ->
                 when {
-                    resp.code == 403 -> UpdateCheckResult.Error("GitHub rate-limited this check — try again later")
+                    resp.code == 403 -> UpdateCheckResult.Error("GitHub rate-limited this check - try again later")
                     resp.code == 404 -> UpdateCheckResult.NoReleases
                     !resp.isSuccessful -> UpdateCheckResult.Error("GitHub returned HTTP ${resp.code}")
                     else -> {
@@ -84,7 +84,7 @@ class UpdateManager(private val client: OkHttpClient) {
     /**
      * Fetches a release's description (Markdown body) for the "What's new" sheet. Tries the exact
      * tag first (`v<version>` and bare `<version>`), then falls back to the latest release, so a
-     * dev/debug build with no matching tag still shows something. Unauthenticated — public repo.
+     * dev/debug build with no matching tag still shows something. Unauthenticated - public repo.
      */
     suspend fun releaseNotes(version: String): String? = withContext(Dispatchers.IO) {
         val v = version.trim().removePrefix("v").removePrefix("V").substringBefore('-')

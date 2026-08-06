@@ -3,7 +3,7 @@
  * POST /add_friend.php   (Authorization: Bearer <token>)
  * Body: { "friend_code": "X7K2P9" }
  *
- * Creates a mutual friendship (both directions) immediately — no accept/reject step.
+ * Creates a mutual friendship (both directions) immediately - no accept/reject step.
  */
 require __DIR__ . '/db.php';
 

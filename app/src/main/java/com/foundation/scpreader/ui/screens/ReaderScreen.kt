@@ -122,8 +122,8 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
             app.readerScrollConsumed = true
         }
     }
-    // Persist the scroll offset only when the user leaves — closing/switching the article
-    // (onDispose) or backgrounding the app (ON_STOP) — never mid-scroll, to keep scrolling smooth.
+    // Persist the scroll offset only when the user leaves - closing/switching the article
+    // (onDispose) or backgrounding the app (ON_STOP) - never mid-scroll, to keep scrolling smooth.
     // Guarded by readerScrollConsumed so a quick open/close can't clobber a saved position with 0.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, item.url) {
@@ -167,7 +167,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
         }
 
         // Reading-progress bar. Scroll position is read in the draw phase (drawBehind), so the
-        // bar repaints on scroll WITHOUT recomposing the reader — keeps scrolling smooth.
+        // bar repaints on scroll WITHOUT recomposing the reader - keeps scrolling smooth.
         if (app.article != null) {
             val progressColor = c.primary
             Box(
@@ -236,7 +236,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                     RatingBar(app, item)
 
                     // This page ships a bespoke visual theme the native renderer can't reproduce, so
-                    // surface it up top (before the body) — offer a web view of the original, fully-
+                    // surface it up top (before the body) - offer a web view of the original, fully-
                     // styled page. Only shown when the scraper flags a custom theme (detectCustomTheme).
                     if (app.article?.hasCustomTheme == true) {
                         Row(
@@ -262,7 +262,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                     val onFootnoteTap: (String) -> Unit = { text -> footnotePopup = text }
                     val onImageTap: (Any, String) -> Unit = { model, caption -> lightbox = model to caption }
                     // Wrap the body in a SelectionContainer so readers can select and copy article
-                    // text. Tappable runs (links, footnote markers, redaction reveals) keep working —
+                    // text. Tappable runs (links, footnote markers, redaction reveals) keep working -
                     // Compose routes a tap to the link and a drag to text selection.
                     SelectionContainer {
                         Column(Modifier.fillMaxWidth()) {
@@ -275,7 +275,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                         Text("No content available.", fontSize = bodyPx.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 24.dp))
                     }
 
-                    // related — only real crosslinks referenced within this article
+                    // related - only real crosslinks referenced within this article
                     val related = app.article?.crosslinks.orEmpty()
                     if (related.isNotEmpty()) {
                         Text("Related", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface, modifier = Modifier.padding(top = 26.dp))
@@ -296,7 +296,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                         Text("Open original wiki page", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.primary, modifier = Modifier.weight(1f))
                     }
 
-                    // Watch the narration on YouTube — credits the narrator at the point their
+                    // Watch the narration on YouTube - credits the narrator at the point their
                     // work is used, not just tucked away in Settings. Only shown when this article
                     // actually has a YouTube-sourced episode (videoId is the source of truth).
                     if (episode?.source == com.foundation.scpreader.data.NarrationSource.YOUTUBE && episode.videoId != null) {
@@ -315,7 +315,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                         }
                     }
 
-                    // CC BY-SA 3.0 attribution — per-article, not just a one-time Settings mention,
+                    // CC BY-SA 3.0 attribution - per-article, not just a one-time Settings mention,
                     // since that's the point of use the license's attribution requirement is about.
                     Column(Modifier.padding(top = 20.dp, bottom = 4.dp)) {
                         val attrText = buildAnnotatedString {
@@ -510,7 +510,7 @@ private fun ImageLightbox(model: Any, caption: String, onDismiss: () -> Unit) {
     }
 }
 
-/** Bottom sheet-style popup for a tapped footnote marker — tap the scrim or the close icon to dismiss. */
+/** Bottom sheet-style popup for a tapped footnote marker - tap the scrim or the close icon to dismiss. */
 @Composable
 private fun FootnotePopup(text: String, onDismiss: () -> Unit) {
     val c = LocalScpScheme.current
@@ -565,7 +565,7 @@ private fun markup(
                 withLink(link) { withStyle(redStyle) { append(s.text) } }
                 return@forEachIndexed
             }
-            // Footnote marker: a small, raised, tappable number — tapping surfaces its body text
+            // Footnote marker: a small, raised, tappable number - tapping surfaces its body text
             // (see the reader's footnote popup) instead of scrolling away to a footer list.
             if (s.footnote != null) {
                 val link = LinkAnnotation.Clickable(tag = "fn$keyPrefix#$idx") { onFootnoteTap(s.footnote) }
@@ -713,7 +713,7 @@ private fun ArticleBlock(
 @Composable
 private fun AcsBar(acs: ContentBlock.Acs) {
     val c = LocalScpScheme.current
-    // Secondary fields (below the containment header row) — the newer articles' disruption/risk band.
+    // Secondary fields (below the containment header row) - the newer articles' disruption/risk band.
     val subFields = listOfNotNull(
         acs.secondary?.let { "Secondary" to it },
         acs.disruption?.let { "Disruption" to it },
@@ -750,7 +750,7 @@ internal fun openUrl(context: android.content.Context, url: String) {
     val uri = android.net.Uri.parse(https)
     val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri)
         .addCategory(android.content.Intent.CATEGORY_BROWSABLE)
-    // We register as a VIEW handler for wiki hosts, so we must target a real browser explicitly —
+    // We register as a VIEW handler for wiki hosts, so we must target a real browser explicitly -
     // otherwise this loops back into our own app. Enumerate handlers for a non-wiki URL (a set we
     // are NOT part of) and pin the intent to one of those browser packages.
     runCatching {

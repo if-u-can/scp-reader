@@ -2,7 +2,7 @@ package com.foundation.scpreader.data
 
 /**
  * An SCP Foundation regional/language division ("branch"). Each branch is a separate Wikidot wiki
- * with its own canon — its own translations of international SCPs plus original stories written
+ * with its own canon - its own translations of international SCPs plus original stories written
  * only there. [host] is the wiki's base URL as indexed by CROM (the `url` prefix used to filter
  * pages and to build number slugs like `<host>/scp-173`), confirmed against api.crom.avn.sh.
  *

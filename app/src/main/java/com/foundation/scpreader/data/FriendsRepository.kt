@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import java.util.UUID
 
-/** Default backend URL — the /webserver deploy; overridable in Settings. */
+/** Default backend URL - the /webserver deploy; overridable in Settings. */
 const val DEFAULT_FRIENDS_SERVER = "https://thepixelpro.de/scpBackend/"
 
 private val Context.friendsStore by preferencesDataStore(name = "friends")
@@ -21,7 +21,7 @@ private val Context.friendsStore by preferencesDataStore(name = "friends")
 /**
  * Owns the device's friend identity and talks to the [FriendsApi].
  *
- * Identity is a random token generated once on this device and persisted via DataStore — there
+ * Identity is a random token generated once on this device and persisted via DataStore - there
  * are no accounts or passwords. The shareable friend code is minted by the server on first
  * registration. The server URL is user-configurable so hosting can change without an app update;
  * it's cached in memory so the API's per-request base-URL lookup stays cheap.

@@ -1,4 +1,4 @@
-# SCP Reader — Friends backend
+# SCP Reader - Friends backend
 
 A tiny PHP + SQLite backend for the friend / recommendation feature. No accounts, no
 passwords, no email. Each device generates its own random token on first launch; that token
@@ -8,7 +8,7 @@ passwords, no email. Each device generates its own random token on first launch;
 
 | Method | Path                    | Auth           | Purpose |
 |--------|-------------------------|----------------|---------|
-| POST   | `register.php`          | —              | Register a device token, get a friend code |
+| POST   | `register.php`          | -              | Register a device token, get a friend code |
 | POST   | `add_friend.php`        | Bearer token   | Add a friend by their code (mutual, instant) |
 | POST   | `remove_friend.php`     | Bearer token   | Remove a friend (mutual) |
 | GET    | `friends.php`           | Bearer token   | List my friends |
@@ -28,7 +28,7 @@ rows.
 4. The app already points **Server URL** (Settings) at `https://thepixelpro.de/scpBackend/`;
    change it there if you deploy elsewhere.
 
-That's it — the schema is created automatically on the first request.
+That's it - the schema is created automatically on the first request.
 
 ## Security notes (yes, it's fine that the app is open source)
 
@@ -48,4 +48,4 @@ That's it — the schema is created automatically on the first request.
 Replace the DSN in `db.php`'s `db()` with your MySQL credentials and run `schema.sql`
 (SQLite-compatible; for MySQL change `INTEGER PRIMARY KEY AUTOINCREMENT` to
 `INT AUTO_INCREMENT PRIMARY KEY`). Keep credentials in an environment variable or a config
-file outside the web root — never in the app.
+file outside the web root - never in the app.

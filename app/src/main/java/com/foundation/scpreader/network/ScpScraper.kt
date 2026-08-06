@@ -44,7 +44,7 @@ class ScpScraper {
 
     /**
      * Turn an already-fetched [doc] into structured [ContentBlock]s. Split out from [fetch] so the
-     * parsing is exercisable off-device (no network) — the wiki markup shifts under us periodically,
+     * parsing is exercisable off-device (no network) - the wiki markup shifts under us periodically,
      * so this is the seam the parser tests drive.
      */
     fun parse(doc: Document, url: String): Scraped {
@@ -72,18 +72,18 @@ class ScpScraper {
         val acs = parseAcs(content)
 
         // Detect a bespoke page theme (custom CSS/fonts/backgrounds) BEFORE the <style> blocks are
-        // stripped below — the native block renderer can't reproduce these, so the reader offers a
+        // stripped below - the native block renderer can't reproduce these, so the reader offers a
         // web view of the original instead.
         val hasCustomTheme = detectCustomTheme(doc)
 
         // Wiki page id + rating type, read before the rate widget is stripped. pageId feeds the
-        // voting API; pmRating is true only for plus/minus (+1/-1) pages — star-rated pages get no
+        // voting API; pmRating is true only for plus/minus (+1/-1) pages - star-rated pages get no
         // vote controls (we simply don't find the up/down widget).
         val pageId = Regex("WIKIREQUEST\\.info\\.pageId\\s*=\\s*(\\d+)").find(doc.html())?.groupValues?.get(1)
         val pmRating = doc.selectFirst(".rateup, .ratedown") != null
 
         // Remove non-article chrome. Collapsibles are turned into structured blocks during the
-        // walk, using the title text from `.collapsible-block-folded` (kept — see below).
+        // walk, using the title text from `.collapsible-block-folded` (kept - see below).
         content.select(
             "style, script, .code, .page-rate-widget-box, .creditRate, .rate-box-with-credit-button, " +
                 ".licensebox, .license-area, .footer-wikiwalk-nav, #u-credit-view, .modal-container, " +
@@ -98,11 +98,11 @@ class ScpScraper {
         val seen = HashSet<String>()
 
         // Recognized leading fold-state glyphs Wikidot skins use ahead of a collapsible/addendum
-        // title — trimmed so our own expand/collapse chevron icon isn't shown doubled-up with one
+        // title - trimmed so our own expand/collapse chevron icon isn't shown doubled-up with one
         // baked into the text.
         val foldGlyphs = "+-−►▶▷◁◀▲▼△▽»«"
 
-        // The title lives in `.collapsible-block-folded` (the initially-visible fold prompt) —
+        // The title lives in `.collapsible-block-folded` (the initially-visible fold prompt) -
         // NOT `.collapsible-block-unfolded-link`'s "hide block" text, which sits right next to the
         // real content and would be picked up by an unscoped `.collapsible-block-link` lookup.
         fun collapsibleTitle(cb: Element): String =
@@ -125,7 +125,7 @@ class ScpScraper {
             if (excerpt.isEmpty() && !isMetaLine(t) && t.length > 40) excerpt = t.take(180)
             var spans = inlineSpans(el, footnoteText)
             // inlineSpans() returns emptyList() for unstyled text (the plain `text` fallback is
-            // enough on its own) — but prepending the bullet marker would make `spans` non-empty
+            // enough on its own) - but prepending the bullet marker would make `spans` non-empty
             // and short-circuit that fallback in markup(), rendering just the bullet with no text.
             if (bullet) spans = listOf(InlineSpan("•  ")) + spans.ifEmpty { listOf(InlineSpan(t)) }
             out.add(ContentBlock.Paragraph(if (bullet) "•  $t" else t, spans))
@@ -137,14 +137,14 @@ class ScpScraper {
         lateinit var walk: (Element, MutableList<ContentBlock>) -> Unit
 
         fun addQuote(el: Element, out: MutableList<ContentBlock>) {
-            // A collapsible (or, rarely, a tabview) sometimes sits *inside* a blockquote — e.g.
+            // A collapsible (or, rarely, a tabview) sometimes sits *inside* a blockquote - e.g.
             // SCP-1548's in-universe transcripts. quoteSpans()/inlineSpans() only flatten inline
             // runs, so left in place these would flatten BOTH the fold-state text and the hidden
             // content into permanently-visible plain text. Pull them out into their own sibling
             // blocks (so they get the normal collapse/expand treatment) before reading the quote's
             // own text.
             val nested = ArrayList<ContentBlock>()
-            // Only top-level matches — a collapsible nested inside another one is already picked
+            // Only top-level matches - a collapsible nested inside another one is already picked
             // up when that outer collapsible's own content is walked, so selecting it again here
             // would duplicate it as an extra, wrongly-flattened top-level sibling.
             el.select(".collapsible-block").filter { cb -> cb.parents().none { it.hasClass("collapsible-block") } }.forEach { cb ->
@@ -170,7 +170,7 @@ class ScpScraper {
                         walk(body, inner)
                         if (inner.isNotEmpty()) out.add(ContentBlock.Collapsible(collapsibleTitle(child), inner))
                     }
-                    // Wikidot `[[tabview]]` (YUI tabs) — e.g. SCP-2317's "Iteration" tabs. Every pane
+                    // Wikidot `[[tabview]]` (YUI tabs) - e.g. SCP-2317's "Iteration" tabs. Every pane
                     // is present in the DOM (later ones `display:none`); represent all of them and let
                     // the reader show exactly one at a time instead of flattening them all into one
                     // continuous, seemingly "auto-expanded" wall of text.
@@ -191,7 +191,7 @@ class ScpScraper {
                     tag == "blockquote" || (tag == "div" && child.hasClass("blockquote")) -> addQuote(child, out)
                     tag == "ul" || tag == "ol" -> child.select("> li").forEach { addText(it, bullet = true, out) }
                     tag == "table" -> parseTable(child, footnoteText)?.let { if (seen.add("tbl:${it.rows.size}:${child.text().take(80)}")) out.add(it) }
-                    tag == "div" -> walk(child, out) // section wrapper — recurse to keep order
+                    tag == "div" -> walk(child, out) // section wrapper - recurse to keep order
                     else -> {}
                 }
             }
@@ -215,7 +215,7 @@ class ScpScraper {
 
         // Crosslinks: anchors within the body that link to another SCP article's wiki *page*.
         // We require the href to resolve to a bare scp-wiki.wikidot.com/scp-XXXX page rather than
-        // just matching "scp-\d+" anywhere in the URL — image thumbnails link to their full-size
+        // just matching "scp-\d+" anywhere in the URL - image thumbnails link to their full-size
         // file on scp-wiki.wdfiles.com/local--files/scp-XXXX/..., where XXXX is just the asset's
         // storage directory (often reused/shared) and unrelated to any article the page mentions.
         val selfSlug = url.substringAfterLast('/').lowercase()
@@ -280,7 +280,7 @@ class ScpScraper {
                 is Element -> {
                     val tag = node.tagName()
                     // Footnote reference marker: `<sup class="footnoteref"><a id="footnoteref-N">N</a></sup>`.
-                    // Emit one dedicated span carrying the resolved footnote body instead of recursing —
+                    // Emit one dedicated span carrying the resolved footnote body instead of recursing -
                     // recursing would just render the bare number "N" as plain, non-interactive text.
                     if (tag == "sup" && node.hasClass("footnoteref")) {
                         val a = node.selectFirst("a")
@@ -316,7 +316,7 @@ class ScpScraper {
                 merged[merged.size - 1] = last.copy(text = last.text + sp.text)
             } else merged.add(sp)
         }
-        // If nothing is styled, linked, redacted or a footnote, drop spans — the plain `text` fallback is enough.
+        // If nothing is styled, linked, redacted or a footnote, drop spans - the plain `text` fallback is enough.
         return if (merged.none { it.bold || it.italic || it.underline || it.strike || it.link != null || it.redacted || it.footnote != null }) emptyList() else merged
     }
 
@@ -349,7 +349,7 @@ class ScpScraper {
             (bar.selectFirst("$s .class-text") ?: bar.selectFirst("$s .type-text"))
                 ?.text()?.trim()?.takeIf { it.isNotEmpty() }
         }
-        // Empty/placeholder values mean the field is unset — treat as absent. Besides "none"/"n/a"/
+        // Empty/placeholder values mean the field is unset - treat as absent. Besides "none"/"n/a"/
         // "-", this drops unfilled ACS-template residue authors leave in place: Wikidot variables
         // like "{$disruption-class}" (SCP-8840) and default tokens like "class_here" / "secondary-
         // class" (SCP-7939). Comparison is separator-insensitive so "class_here"/"class-here" all
@@ -398,7 +398,7 @@ class ScpScraper {
      */
     private fun parseTable(table: Element, footnotes: Map<String, String>): ContentBlock.Table? {
         if (table.selectFirst(".list-pages-box") != null) return null
-        // Only this table's own rows — skip rows belonging to a table nested inside a cell, which
+        // Only this table's own rows - skip rows belonging to a table nested inside a cell, which
         // are picked up when that inner table is walked in its own right.
         val trs = table.select("tr").filter { tr ->
             tr.parents().takeWhile { it !== table }.none { it.tagName() == "table" }

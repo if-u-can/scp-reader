@@ -86,7 +86,7 @@ fun RandomSheet(app: AppState) {
 
     // scrim
     Box(Modifier.fillMaxSize().background(c.scrim).clickable { app.randomOpen = false }, contentAlignment = Alignment.BottomCenter) {
-        // sheet — consume clicks so taps inside don't dismiss
+        // sheet - consume clicks so taps inside don't dismiss
         Column(
             Modifier.fillMaxWidth().clickable(enabled = false) {}.clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                 .background(c.surfaceContainer).verticalScroll(rememberScrollState())

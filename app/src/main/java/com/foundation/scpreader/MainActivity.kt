@@ -157,7 +157,7 @@ class MainActivity : ComponentActivity() {
 
 private data class NavDef(val screen: Screen, val iconActive: ImageVector, val iconInactive: ImageVector, val label: String)
 
-// Settings is intentionally absent — it lives as an action in the Home top bar, not the bottom nav.
+// Settings is intentionally absent - it lives as an action in the Home top bar, not the bottom nav.
 private val navDefs = listOf(
     NavDef(Screen.Home, AppIcons.Home, AppIcons.HomeOutlined, "Home"),
     NavDef(Screen.Search, AppIcons.Search, AppIcons.SearchOutlined, "Search"),
@@ -214,7 +214,7 @@ private fun AppRoot(app: AppState) {
         }
 
         // While the original-theme web view is open it fully covers the reader, so drop the reader
-        // from composition — its scroll/image/lifecycle work would otherwise compete for the main
+        // from composition - its scroll/image/lifecycle work would otherwise compete for the main
         // thread and make the WebView scroll stutter.
         if (app.themeViewItem == null) app.readerItem?.let { item -> ReaderScreen(app, item) }
         app.themeViewItem?.let { item -> com.foundation.scpreader.ui.screens.ThemeWebView(app, item) }

@@ -18,7 +18,7 @@ import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
-/** Manual DI container (single module, no Hilt) — holds app-scoped singletons. */
+/** Manual DI container (single module, no Hilt) - holds app-scoped singletons. */
 class AppContainer(context: Context) {
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -48,7 +48,7 @@ class AppContainer(context: Context) {
     private val appContext = context.applicationContext
     private val connectivity = appContext.getSystemService(ConnectivityManager::class.java)
 
-    /** True on an unmetered network (Wi-Fi/Ethernet) — used to honor the "Wi-Fi only" setting. */
+    /** True on an unmetered network (Wi-Fi/Ethernet) - used to honor the "Wi-Fi only" setting. */
     private fun isUnmetered(): Boolean {
         val net = connectivity?.activeNetwork ?: return false
         val caps = connectivity.getNetworkCapabilities(net) ?: return false
@@ -64,7 +64,7 @@ class AppContainer(context: Context) {
 
     val settingsStore = SettingsStore(appContext)
 
-    /** Release-based update checker (see Settings > Updates) — unauthenticated, public-repo only. */
+    /** Release-based update checker (see Settings > Updates) - unauthenticated, public-repo only. */
     val updateManager = com.foundation.scpreader.update.UpdateManager(http)
 
     /** Narration source layer: YouTube (@scparchives) primary, Apple podcast fallback. */

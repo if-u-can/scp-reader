@@ -45,7 +45,7 @@ import com.foundation.scpreader.ui.components.ScpSpinner
 import com.foundation.scpreader.ui.theme.LocalScpScheme
 
 /**
- * Full-screen WebView showing the article's real, fully-styled wiki page — the faithful way to view
+ * Full-screen WebView showing the article's real, fully-styled wiki page - the faithful way to view
  * a custom theme the native block renderer can't reproduce. Opened from the reader's "View original
  * theme" banner (only for pages the scraper flags as themed). Online-only by nature.
  */
@@ -55,7 +55,7 @@ fun ThemeWebView(app: AppState, item: ScpItem) {
     val c = LocalScpScheme.current
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val url = item.url.replaceFirst("http://", "https://")
-    // Only the FIRST load shows the spinner — later in-page navigations must not throw a full-screen
+    // Only the FIRST load shows the spinner - later in-page navigations must not throw a full-screen
     // overlay over the page mid-scroll (that read as the scroll "randomly stopping").
     var initialLoad by remember { mutableStateOf(true) }
     val surfaceArgb = c.surface.toArgb()
@@ -63,7 +63,7 @@ fun ThemeWebView(app: AppState, item: ScpItem) {
     // Retained across recompositions so the page isn't reloaded; destroyed on close.
     val webView = remember {
         WebView(ctx).apply {
-            // Match the app surface so there's no white/black flash before the page paints — the
+            // Match the app surface so there's no white/black flash before the page paints - the
             // stray dark strip at the bottom came from a reserved inset the WebView now fills itself.
             setBackgroundColor(surfaceArgb)
             settings.javaScriptEnabled = true
@@ -81,7 +81,7 @@ fun ThemeWebView(app: AppState, item: ScpItem) {
                     android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL ->
                         v.parent?.requestDisallowInterceptTouchEvent(false)
                 }
-                false // don't consume — let the WebView scroll normally
+                false // don't consume - let the WebView scroll normally
             }
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, u: String?) { initialLoad = false }

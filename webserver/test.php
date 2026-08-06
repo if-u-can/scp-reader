@@ -1,9 +1,9 @@
 <?php
 /**
- * Diagnostics — open https://thepixelpro.de/scpBackend/test.php in a browser.
+ * Diagnostics - open https://thepixelpro.de/scpBackend/test.php in a browser.
  *
  * Confirms PHP version, that the pdo_sqlite driver exists, that the data directory is writable,
- * and — crucially — whether the Authorization header actually reaches PHP on this host.
+ * and - crucially - whether the Authorization header actually reaches PHP on this host.
  *
  * DELETE this file once everything checks out; it leaks environment detail otherwise.
  */

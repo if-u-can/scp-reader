@@ -16,7 +16,7 @@ import com.foundation.scpreader.ScpApp
 
 /**
  * Wraps the app-scoped [PlayerController]'s ExoPlayer (owned by [AppContainer], same process) in a
- * [MediaSession] so the OS surfaces a real MediaStyle "now playing" notification — lock screen,
+ * [MediaSession] so the OS surfaces a real MediaStyle "now playing" notification - lock screen,
  * quick-settings media controls and the phone's now-playing island (Pixel/Samsung), like Spotify.
  * There's no separate player here; the session mirrors whatever [PlayerController] is doing, so all
  * existing playback logic (SponsorBlock skipping, resume, offline files) is untouched.
@@ -38,7 +38,7 @@ class PlaybackService : MediaSessionService() {
         )
         // Skip-back / skip-forward 15s buttons that mirror the in-app player. They carry the standard
         // COMMAND_SEEK_BACK/FORWARD player commands, so Media3 dispatches them straight to the player,
-        // which honours the 15s seek increments PlayerController configures — identical to the on-screen
+        // which honours the 15s seek increments PlayerController configures - identical to the on-screen
         // ±15s controls. Shown in both the notification and the system media island.
         val seekBack = CommandButton.Builder(CommandButton.ICON_SKIP_BACK_15)
             .setDisplayName("Back 15 seconds")
@@ -63,7 +63,7 @@ class PlaybackService : MediaSessionService() {
     // requires startForeground() with a notification within ~5s or it kills the app with a
     // RemoteServiceException. Media3 only posts its own notification once the session/metadata is
     // ready, which can land later (e.g. while a YouTube stream URL resolves). So we post an
-    // immediate placeholder — but a *MediaStyle* one bound to the MediaSession's platform token, so
+    // immediate placeholder - but a *MediaStyle* one bound to the MediaSession's platform token, so
     // the OS recognizes it as media (lock screen / island / media resumption) from the first frame
     // instead of a plain "Loading" notification. Media3 then swaps in its full transport-control
     // version once the player is ready.

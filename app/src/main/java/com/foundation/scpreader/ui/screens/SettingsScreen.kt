@@ -530,7 +530,7 @@ private fun ToggleRow(icon: ImageVector, title: String, subtitle: String?, on: B
 
 /**
  * Update-check/download/install controls for ThePixelPro366/scp-reader's public-repo releases.
- * No credentials of any kind are needed — the GitHub Releases API and asset download both work
+ * No credentials of any kind are needed - the GitHub Releases API and asset download both work
  * unauthenticated on a public repo.
  */
 @Composable

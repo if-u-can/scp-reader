@@ -282,7 +282,7 @@ private fun HeroSlot(app: AppState) {
                 Text(item.displayTitle, fontSize = 22.sp, fontWeight = FontWeight.Medium, color = c.onPrimaryContainer, lineHeight = 25.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 val frac = if (app.heroMode == HeroMode.ContinueReading) (app.recentProgress[item.url] ?: 0f) else 0f
                 if (frac > 0.01f) {
-                    // Reading-progress bar (persisted scroll fraction) — resumes where you left off.
+                    // Reading-progress bar (persisted scroll fraction) - resumes where you left off.
                     Box(Modifier.padding(top = 14.dp).fillMaxWidth().height(5.dp).clip(RoundedCornerShape(3.dp)).background(c.onPrimaryContainer.copy(alpha = 0.18f))) {
                         Box(Modifier.fillMaxWidth(frac).height(5.dp).clip(RoundedCornerShape(3.dp)).background(c.primary))
                     }

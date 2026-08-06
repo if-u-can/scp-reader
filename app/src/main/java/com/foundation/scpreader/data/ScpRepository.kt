@@ -300,7 +300,7 @@ class ScpRepository(
 
     // ---- recently viewed / continue reading ----
     val recents: Flow<List<ScpItem>> = recentDao.observeAll().map { rows -> rows.map { it.toScpItem() } }
-    /** Raw recents rows — exposes the reading-progress fraction the ScpItem projection drops. */
+    /** Raw recents rows - exposes the reading-progress fraction the ScpItem projection drops. */
     val recentRows: Flow<List<RecentEntity>> = recentDao.observeAll()
 
     /** Record (or bump) an opened article, preserving any saved scroll offset & reading progress. */
@@ -399,7 +399,7 @@ class ScpRepository(
             l.startsWith("rating:") || l.startsWith("[[") || l.startsWith("http")
     }
 
-    /** Fetch [count] random articles in parallel — powers the "Random entries" discover feed. */
+    /** Fetch [count] random articles in parallel - powers the "Random entries" discover feed. */
     suspend fun randomItems(count: Int, exclude: Set<String> = emptySet()): List<ScpItem> = coroutineScope {
         val nums = HashSet<Int>()
         while (nums.size < count * 3) nums.add((2..8999).random())
@@ -494,7 +494,7 @@ class ScpRepository(
     /**
      * Downloads every `ContentBlock.Image` reachable from [blocks] (including nested collapsibles
      * and tabs) to `filesDir/images/<slug>/`, returning the tree with [ContentBlock.Image.localPath]
-     * filled in plus the total bytes written. A single image's failure is non-fatal — it keeps its
+     * filled in plus the total bytes written. A single image's failure is non-fatal - it keeps its
      * live [ContentBlock.Image.url] as a fallback rather than failing the whole download.
      */
     private suspend fun cacheImages(jobUrl: String, blocks: List<ContentBlock>): Pair<List<ContentBlock>, Long> {
@@ -539,7 +539,7 @@ class ScpRepository(
 
         val scraped = runCatching { scraper.fetch(job.url) }.getOrNull()
         val rawBlocks = scraped?.blocks?.takeIf { it.isNotEmpty() } ?: failureBlocks()
-        // "Text" offline means the article reads the same offline as on — that includes its
+        // "Text" offline means the article reads the same offline as on - that includes its
         // images, not just the words, so cache each ContentBlock.Image alongside the JSON body.
         dao.updateProgress(job.url, DlStatus.ACTIVE, 10, now())
         val (blocks, imageBytes) = cacheImages(job.url, rawBlocks)
@@ -583,7 +583,7 @@ class ScpRepository(
                 if (dl.getOrDefault(false)) {
                     audioPath = raw.absolutePath
                     // Key the row on the PRIMARY episode (what playback's episodeFor resolves to),
-                    // not the fallback source we actually fetched — otherwise a YouTube→Apple
+                    // not the fallback source we actually fetched - otherwise a YouTube→Apple
                     // fallback download would be stored under "pod:…" and never matched offline
                     // (playback looks it up by the YouTube "yt:…" mediaId).
                     mediaId = ep.mediaId

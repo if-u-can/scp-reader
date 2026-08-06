@@ -9,7 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 /**
- * Casts the signed-in user's own vote on the SCP wiki, on their behalf, one tap at a time — this is
+ * Casts the signed-in user's own vote on the SCP wiki, on their behalf, one tap at a time - this is
  * the account owner's normal action, just issued from the app. Wikidot's rating is a plus/minus
  * (`type:"PM"`) AJAX action: login on www.wikidot.com yields a `WIKIDOT_SESSION_ID` that also
  * authorises the scp-wiki subdomain; the CSRF is a double-submit `wikidot_token7` (cookie == param,
@@ -34,7 +34,7 @@ class WikidotVoteApi(private val client: OkHttpClient) {
         data class Ok(val points: Int?) : RateResult
         /** The server refused because a vote already exists; [current] is the user's existing value. */
         data class AlreadyVoted(val current: Int?) : RateResult
-        /** The session is missing/expired — the caller should prompt a re-login. */
+        /** The session is missing/expired - the caller should prompt a re-login. */
         data object NeedLogin : RateResult
         data class Error(val message: String) : RateResult
     }

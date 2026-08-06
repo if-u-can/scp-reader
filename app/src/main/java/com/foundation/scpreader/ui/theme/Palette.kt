@@ -110,7 +110,7 @@ fun buildScheme(seedKey: SeedKey, dynamicColor: Boolean, isDark: Boolean): ScpSc
     )
 }
 
-/** Build our token set from a Material3 [ColorScheme] — used for Android 12+ wallpaper (Material You) colors. */
+/** Build our token set from a Material3 [ColorScheme] - used for Android 12+ wallpaper (Material You) colors. */
 fun schemeFromMaterial(cs: ColorScheme, isDark: Boolean): ScpScheme = ScpScheme(
     primary = cs.primary, onPrimary = cs.onPrimary,
     primaryContainer = cs.primaryContainer, onPrimaryContainer = cs.onPrimaryContainer,
@@ -146,7 +146,7 @@ fun materialColorScheme(s: ScpScheme, isDark: Boolean): ColorScheme {
 /**
  * Push a dark [ScpScheme] to true black for AMOLED screens: pure-black base surfaces (unlit pixels)
  * with the container tiers stepped up in near-black greys so cards/sheets still separate. Seed and
- * on-colors are left untouched. Only meaningful over a dark scheme — callers gate on isDark.
+ * on-colors are left untouched. Only meaningful over a dark scheme - callers gate on isDark.
  */
 fun ScpScheme.toAmoled(): ScpScheme = copy(
     surface = hex("#000000"), surfaceDim = hex("#000000"), surfaceCLowest = hex("#000000"),

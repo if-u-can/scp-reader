@@ -2,7 +2,7 @@
 /**
  * SQLite bootstrap for the SCP Reader friends backend.
  *
- * No secrets live here — the app never ships DB credentials. The SQLite file is created
+ * No secrets live here - the app never ships DB credentials. The SQLite file is created
  * next to these scripts on first run. If you'd rather use MySQL, swap the DSN below; the
  * schema is standard SQL.
  *
@@ -59,7 +59,7 @@ function respond(int $status, array $payload): void
 }
 
 /**
- * Read the Authorization header. Apache/CGI setups vary in where they expose it — many shared
+ * Read the Authorization header. Apache/CGI setups vary in where they expose it - many shared
  * hosts drop it from $_SERVER['HTTP_AUTHORIZATION'] entirely, so we check every known location.
  */
 function bearer_header(): string
@@ -81,7 +81,7 @@ function bearer_header(): string
 }
 
 /**
- * Pull the bearer token, look it up, and return the device row — or 401 out.
+ * Pull the bearer token, look it up, and return the device row - or 401 out.
  * The token is generated on-device and is the ONLY credential; treat it like a password.
  */
 function require_device(PDO $pdo): array
@@ -108,7 +108,7 @@ function require_device(PDO $pdo): array
 
 /**
  * Very small per-token rate limit: at most $max writes per $window seconds.
- * Cheap abuse guard for an anonymous, open-source backend — not a security boundary.
+ * Cheap abuse guard for an anonymous, open-source backend - not a security boundary.
  */
 function rate_limit(PDO $pdo, string $token, string $bucket, int $max, int $window): void
 {

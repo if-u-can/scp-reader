@@ -37,7 +37,7 @@ import com.foundation.scpreader.ui.theme.classColors
  * Maps an object-class name to its SCP gear-badge drawable (black disc + white symbol). Matching is
  * case-insensitive and tolerant of whitespace/hyphens/suffixes (e.g. "esoteric-class", "Keter-class"),
  * so classes parsed from tags, the ACS bar or article text all resolve. Any class we don't have art
- * for — including "Unknown" and the long tail of one-off esoteric classes — falls back to the "?" badge.
+ * for - including "Unknown" and the long tail of one-off esoteric classes - falls back to the "?" badge.
  */
 @DrawableRes
 fun classBadgeRes(objectClass: String): Int {

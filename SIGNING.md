@@ -2,11 +2,11 @@
 
 Release builds (`assembleRelease`) are signed with a keystore that is **not** part of this repo.
 Without it, `release` builds fall back to debug signing so the build never breaks for
-contributors or CI — you just won't get an installable-as-update, properly signed APK.
+contributors or CI - you just won't get an installable-as-update, properly signed APK.
 
 ## Local builds
 
-Create `keystore.properties` at the project root (same folder as this file). It's gitignored —
+Create `keystore.properties` at the project root (same folder as this file). It's gitignored -
 never commit it.
 
 ```properties
@@ -34,7 +34,7 @@ The workflow decodes `KEYSTORE_BASE64` into a temporary file (outside the checko
 the end of the job either way) and points Gradle at it via the `KEYSTORE_FILE` env var, mirroring
 `keystore.properties`' fields.
 
-If none of these secrets are set (e.g. on a fork), the workflow still runs — the release APK it
+If none of these secrets are set (e.g. on a fork), the workflow still runs - the release APK it
 produces is just debug-signed.
 
 ### Encoding your keystore on Windows
@@ -45,6 +45,6 @@ PowerShell:
 [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\path\to\your.jks")) | Set-Clipboard
 ```
 
-This copies the base64 text straight to your clipboard — paste it as the `KEYSTORE_BASE64`
+This copies the base64 text straight to your clipboard - paste it as the `KEYSTORE_BASE64`
 secret's value. (If you'd rather write it to a file instead of the clipboard:
 `[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\path\to\your.jks")) | Out-File keystore.b64 -Encoding ascii`.)

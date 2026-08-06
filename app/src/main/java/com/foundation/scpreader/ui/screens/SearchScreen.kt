@@ -150,7 +150,7 @@ fun SearchScreen(app: AppState) {
 
 /**
  * Shown before the user types anything: their recently-viewed entries (local, instant) followed by
- * top-rated SCPs from CROM. Degrades gracefully — while top-rated is loading it shows a spinner,
+ * top-rated SCPs from CROM. Degrades gracefully - while top-rated is loading it shows a spinner,
  * and on failure it falls back to just recents (or the plain prompt if there are none either).
  */
 @Composable
@@ -193,7 +193,7 @@ private fun SearchZeroState(app: AppState) {
 
 private val searchTypeDefs = listOf("all" to "All", "scp" to "SCP", "tale" to "Tales", "goi" to "GoI")
 
-/** Popup with all search filters — type, object class and tags — sharing one chip style. */
+/** Popup with all search filters - type, object class and tags - sharing one chip style. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FilterSheet(app: AppState) {

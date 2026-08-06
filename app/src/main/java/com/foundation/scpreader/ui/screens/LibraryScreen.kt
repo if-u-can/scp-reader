@@ -173,7 +173,7 @@ fun LibraryScreen(app: AppState) {
 /** Canonical class order for the "browse offline by class" tiles; unknown classes sort last. */
 private val classOrder = listOf("Safe", "Euclid", "Keter", "Thaumiel", "Archon", "Neutralized", "Explained", "Apollyon", "Esoteric", "Maksur")
 
-/** "BROWSE BY CLASS" tile row — one tile per object class present in the library, plus All. */
+/** "BROWSE BY CLASS" tile row - one tile per object class present in the library, plus All. */
 @Composable
 private fun BrowseByClass(app: AppState, classesInLibrary: List<String>) {
     if (classesInLibrary.isEmpty()) return
@@ -215,7 +215,7 @@ private fun ClassTile(
             .clickable { app.selectLibClass(key) }.padding(vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // The SCP containment badge is a black gear + white symbol — draw it untinted so it
+        // The SCP containment badge is a black gear + white symbol - draw it untinted so it
         // renders in its true colours rather than being flattened to a single tint. Classes with
         // no dedicated art resolve to the "?" unknown badge inside classBadgeRes().
         Image(painterResource(badgeRes), null, Modifier.size(30.dp))

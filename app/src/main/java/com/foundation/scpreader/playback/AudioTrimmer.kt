@@ -19,7 +19,7 @@ import kotlin.coroutines.resume
 /**
  * Physically removes segments from an audio file using Media3 Transformer: each KEEP range becomes a
  * clipped [EditedMediaItem]; concatenating them in one [EditedMediaItemSequence] drops the gaps
- * (the skip segments). Output is a single AAC/MP4 file. No FFmpeg — same media3 family as ExoPlayer.
+ * (the skip segments). Output is a single AAC/MP4 file. No FFmpeg - same media3 family as ExoPlayer.
  */
 class AudioTrimmer(context: Context) {
 

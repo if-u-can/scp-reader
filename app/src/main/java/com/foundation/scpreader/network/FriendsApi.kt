@@ -13,7 +13,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * Thin OkHttp client for the friends/recommendation backend (see /webserver).
  *
  * Identity is a device-generated [token]; there are no accounts. [baseUrl] is user-configurable
- * (Settings) so the server can move hosts without an app update. No secrets are held here — the
+ * (Settings) so the server can move hosts without an app update. No secrets are held here - the
  * only credential is the per-device token, sent as a bearer header.
  */
 class FriendsApi(

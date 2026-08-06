@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Periodically polls the backend for new friend recommendations and raises a local notification.
  *
- * There's no push infrastructure (no FCM), so this is a lightweight ~15-minute poll — the OS
+ * There's no push infrastructure (no FCM), so this is a lightweight ~15-minute poll - the OS
  * minimum for periodic work. Foreground refreshes (opening the app / Friends tab) surface new
  * recommendations immediately; this worker covers the app-closed case.
  */
@@ -38,7 +38,7 @@ class RecommendationWorker(context: Context, params: WorkerParameters) : Corouti
     companion object {
         private const val WORK_NAME = "recommendation-poll"
 
-        /** Schedule the recurring poll (idempotent — safe to call on every app start). */
+        /** Schedule the recurring poll (idempotent - safe to call on every app start). */
         fun schedule(context: Context) {
             val request = PeriodicWorkRequestBuilder<RecommendationWorker>(15, TimeUnit.MINUTES)
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
