@@ -56,9 +56,9 @@ import kotlinx.coroutines.flow.first
 import kotlin.math.roundToInt
 
 private val modeDefs = listOf(
-    Triple(ThemeMode.Light, "Light", AppIcons.LightMode),
-    Triple(ThemeMode.Auto, "Auto", AppIcons.BrightnessAuto),
-    Triple(ThemeMode.Dark, "Dark", AppIcons.DarkMode),
+    Triple(ThemeMode.Light, "浅色", AppIcons.LightMode),
+    Triple(ThemeMode.Auto, "自动", AppIcons.BrightnessAuto),
+    Triple(ThemeMode.Dark, "深色", AppIcons.DarkMode),
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -78,7 +78,7 @@ fun SettingsScreen(app: AppState) {
             app.scrollSettingsToUpdates = false
         }
     }
-    // Arriving from the reader's "Log in to vote" prompt: scroll to the Wikidot account section.
+    // Arriving from the reader's "登录后评分" prompt: scroll to the Wikidot account section.
     androidx.compose.runtime.LaunchedEffect(app.scrollSettingsToWikidot) {
         if (app.scrollSettingsToWikidot) {
             androidx.compose.runtime.snapshotFlow { wikidotAnchorY }.first { it > 0 }
@@ -95,15 +95,15 @@ fun SettingsScreen(app: AppState) {
                 Modifier.clip(CircleShape).clickable { app.go(com.foundation.scpreader.Screen.Home) }.padding(8.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcons.ArrowBack, "Back", Modifier.size(24.dp), tint = c.onSurface)
+                Icon(AppIcons.ArrowBack, "返回", Modifier.size(24.dp), tint = c.onSurface)
             }
-            Text("Settings", fontSize = 28.sp, color = c.onSurface)
+            Text("设置", fontSize = 28.sp, color = c.onSurface)
         }
 
         // ---- Appearance ----
-        GroupLabel("Appearance")
+        GroupLabel("外观")
         SettingsCard {
-            Text("Theme", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 6.dp))
+            Text("主题", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 6.dp))
             Row(Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 modeDefs.forEach { (mode, label, icon) ->
                     val active = app.themeMode == mode
@@ -132,8 +132,8 @@ fun SettingsScreen(app: AppState) {
                 ) {
                     Icon(AppIcons.Palette, null, Modifier.size(24.dp), tint = c.onSurfaceVariant)
                     Column(Modifier.weight(1f)) {
-                        Text("Dynamic color", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
-                        Text("Use colors from your wallpaper", fontSize = 13.sp, color = c.onSurfaceVariant)
+                        Text("动态取色", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+                        Text("跟随壁纸提取主题色", fontSize = 13.sp, color = c.onSurfaceVariant)
                     }
                     PillSwitch(app.dynamicColor)
                 }
@@ -146,15 +146,15 @@ fun SettingsScreen(app: AppState) {
             ) {
                 Icon(AppIcons.DarkMode, null, Modifier.size(24.dp), tint = c.onSurfaceVariant)
                 Column(Modifier.weight(1f)) {
-                    Text("AMOLED black", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
-                    Text("True-black surfaces in dark mode", fontSize = 13.sp, color = c.onSurfaceVariant)
+                    Text("AMOLED 纯黑", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+                    Text("深色模式下使用纯黑背景", fontSize = 13.sp, color = c.onSurfaceVariant)
                 }
                 PillSwitch(app.amoled)
             }
             if (!supportsDynamic || !app.dynamicColor) {
                 Divider1()
                 Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 18.dp)) {
-                    Text("Accent color", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(bottom = 12.dp))
+                    Text("强调色", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(bottom = 12.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                         SeedKey.entries.forEach { sk ->
                             val active = app.seed == sk
@@ -176,16 +176,16 @@ fun SettingsScreen(app: AppState) {
         }
 
         // ---- Discover ----
-        GroupLabel("Discover")
+        GroupLabel("档案发现")
         SettingsCard {
-            Text("Home highlight", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
-            Text("What the top card on Home shows", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
+            Text("首页重点展示", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
+            Text("选择首页顶部卡片展示的内容", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
             val heroDefs = listOf(
-                HeroMode.ContinueReading to "Continue reading",
-                HeroMode.ScpOfTheDay to "SCP of the Day",
-                HeroMode.Trending to "Trending",
-                HeroMode.RecentlyViewed to "Recently viewed",
-                HeroMode.FriendRecommendation to "Friend recommendation",
+                HeroMode.ContinueReading to "继续阅读",
+                HeroMode.ScpOfTheDay to "今日异常项目",
+                HeroMode.Trending to "热门档案",
+                HeroMode.RecentlyViewed to "最近阅览",
+                HeroMode.FriendRecommendation to "好友推荐",
             )
             FlowRow(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 heroDefs.forEach { (m, label) ->
@@ -202,8 +202,8 @@ fun SettingsScreen(app: AppState) {
                 }
             }
             Divider1()
-            Text("Exclude object classes", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
-            Text("Hidden from random picks & random entries", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
+            Text("排除项目等级", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
+            Text("随机推荐与随机档案中不显示所选等级", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
             FlowRow(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("Safe", "Euclid", "Keter", "Thaumiel", "Neutralized").forEach { cls ->
                     val excluded = app.excludedClasses.contains(cls)
@@ -222,10 +222,10 @@ fun SettingsScreen(app: AppState) {
         }
 
         // ---- Content branches ----
-        GroupLabel("Content branches")
+        GroupLabel("维基分部")
         SettingsCard {
-            Text("Language divisions", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
-            Text("Random entries & SCP of the Day are drawn from these regional wikis. Opening an article that's translated into one of them offers a switch.", fontSize = 13.sp, lineHeight = 18.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
+            Text("语言分部", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
+            Text("随机档案与每日推荐来自所选语言分部。若当前档案存在其他分部的对应版本，阅读时会提供跳转入口。", fontSize = 13.sp, lineHeight = 18.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
             FlowRow(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 com.foundation.scpreader.data.Branch.entries.forEach { branch ->
                     val on = app.selectedBranches.contains(branch.code)
@@ -244,10 +244,10 @@ fun SettingsScreen(app: AppState) {
         }
 
         // ---- Reading ----
-        GroupLabel("Reading")
+        GroupLabel("阅读")
         SettingsCard {
             Row(Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 6.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                Text("Text size", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+                Text("文字大小", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
                 Text("${(app.fontScale * 100).roundToInt()}%", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.primary)
             }
             Row(Modifier.padding(start = 18.dp, end = 18.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -262,24 +262,24 @@ fun SettingsScreen(app: AppState) {
                 Icon(AppIcons.TextFields, null, Modifier.size(26.dp), tint = c.onSurfaceVariant)
             }
             Text(
-                "The subject remains dormant under standard containment.",
+                "该项目在标准收容措施下保持休眠状态。",
                 fontSize = (16 * app.fontScale).sp, lineHeight = (16 * app.fontScale * 1.62f).sp, color = c.onSurfaceVariant,
                 modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 4.dp, bottom = 16.dp),
             )
             Divider1()
-            ToggleRow(AppIcons.Image, "Load images", "Show figures inline in articles", app.loadImages) { app.toggleImages() }
+            ToggleRow(AppIcons.Image, "加载图片", "在档案正文中显示插图", app.loadImages) { app.toggleImages() }
         }
 
         // ---- Downloads & audio ----
-        GroupLabel("Downloads & audio")
+        GroupLabel("下载与音频")
         SettingsCard {
-            Text("Download content", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
-            Text("Audio options apply only when a narration exists", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
+            Text("下载内容", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
+            Text("仅在存在朗读音频时可下载音频", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
             val prefs = listOf(
-                DownloadPref.TextOnly to "Text only",
-                DownloadPref.TextAudio to "Text + audio",
-                DownloadPref.AudioOnly to "Audio",
-                DownloadPref.Ask to "Always ask",
+                DownloadPref.TextOnly to "仅文本",
+                DownloadPref.TextAudio to "文本及音频",
+                DownloadPref.AudioOnly to "音频",
+                DownloadPref.Ask to "每次询问",
             )
             FlowRow(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 prefs.forEach { (p, label) ->
@@ -296,16 +296,16 @@ fun SettingsScreen(app: AppState) {
                 }
             }
             Divider1()
-            ToggleRow(AppIcons.Bookmark, "Auto-download bookmarks", "Save bookmarked articles offline automatically", app.autoDownloadBookmarks) { app.toggleAutoDownloadBookmarks() }
+            ToggleRow(AppIcons.Bookmark, "自动下载收藏", "自动将已收藏的档案保存到本地", app.autoDownloadBookmarks) { app.toggleAutoDownloadBookmarks() }
             Divider1()
-            ToggleRow(AppIcons.Wifi, "Download over Wi-Fi only", null, app.wifiOnly) { app.toggleWifi() }
+            ToggleRow(AppIcons.Wifi, "仅通过 Wi-Fi 下载", null, app.wifiOnly) { app.toggleWifi() }
         }
 
         // ---- SponsorBlock ----
         GroupLabel("SponsorBlock")
         SettingsCard {
-            Text("Auto-skip segments", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
-            Text("Skip these parts of YouTube narrations (crowd-sourced)", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 6.dp))
+            Text("自动跳过片段", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
+            Text("自动跳过 YouTube 朗读中由社区标注的片段", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 6.dp))
             com.foundation.scpreader.playback.SponsorCategory.ALL.forEach { cat ->
                 Divider1()
                 ToggleRow(AppIcons.FastForward, com.foundation.scpreader.playback.SponsorCategory.label(cat), null, app.sponsorCategories.contains(cat)) {
@@ -316,10 +316,10 @@ fun SettingsScreen(app: AppState) {
 
         // ---- Friends ----
         // ---- Wikidot account (for in-app voting) ----
-        // Zero-height anchor: records this section's content-relative top so the "Log in to vote"
+        // Zero-height anchor: records this section's content-relative top so the "登录后评分"
         // prompt can scroll straight here.
         Box(Modifier.fillMaxWidth().onGloballyPositioned { wikidotAnchorY = it.positionInParent().y.toInt() })
-        GroupLabel("Wikidot account")
+        GroupLabel("Wikidot 账号")
         SettingsCard {
             val wikiCtx = androidx.compose.ui.platform.LocalContext.current
             if (app.wikidotLoggedIn) {
@@ -329,7 +329,7 @@ fun SettingsScreen(app: AppState) {
                 ) {
                     Icon(AppIcons.Group, null, Modifier.size(24.dp), tint = c.primary)
                     Column(Modifier.weight(1f)) {
-                        Text("Signed in", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+                        Text("已登录", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
                         Text(app.wikidotUser, fontSize = 13.sp, color = c.onSurfaceVariant)
                     }
                 }
@@ -339,15 +339,15 @@ fun SettingsScreen(app: AppState) {
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     Icon(AppIcons.Close, null, Modifier.size(22.dp), tint = c.onSurfaceVariant)
-                    Text("Log out", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+                    Text("退出登录", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
                 }
             } else {
                 var user by remember { mutableStateOf("") }
                 var pass by remember { mutableStateOf("") }
-                Text("Log in with your Wikidot account to vote on articles. Your password isn't stored — only the login session is kept on this device.", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 14.dp, bottom = 12.dp))
-                SettingsInput(user, "Username", onChange = { user = it })
+                Text("使用 Wikidot 账号登录后可为档案评分。应用不保存密码，仅在本机保留登录会话。", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 14.dp, bottom = 12.dp))
+                SettingsInput(user, "用户名", onChange = { user = it })
                 Spacer(Modifier.height(10.dp))
-                SettingsInput(pass, "Password", password = true, onChange = { pass = it })
+                SettingsInput(pass, "密码", password = true, onChange = { pass = it })
                 app.wikidotLoginError?.let { err ->
                     Text(err, fontSize = 13.sp, color = Color(0xFFB3261E), modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 8.dp))
                 }
@@ -358,23 +358,23 @@ fun SettingsScreen(app: AppState) {
                         contentAlignment = Alignment.Center,
                     ) {
                         if (app.wikidotLoggingIn) ScpSpinner(size = 20)
-                        else Text("Log in", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary)
+                        else Text("登录", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary)
                     }
                     Box(
                         Modifier.weight(1f).height(48.dp).clip(RoundedCornerShape(12.dp)).border(1.dp, c.outline, RoundedCornerShape(12.dp))
                             .clickable { openUrl(wikiCtx, "https://www.wikidot.com/default--flow/login__CreateAccountScreen") },
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("Create account", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+                        Text("注册账号", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
                     }
                 }
             }
         }
 
-        GroupLabel("Friends")
+        GroupLabel("好友")
         SettingsCard {
-            Text("Server URL", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 2.dp))
-            Text("Backend for the friends & recommendations feature.", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
+            Text("服务器地址", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 2.dp))
+            Text("好友和推荐功能的后端服务地址。", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
             Row(
                 Modifier.padding(start = 16.dp, end = 16.dp, bottom = 14.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -403,7 +403,7 @@ fun SettingsScreen(app: AppState) {
                     Modifier.height(48.dp).clip(RoundedCornerShape(12.dp)).background(c.primary).clickable { app.saveServerUrl() }.padding(horizontal = 18.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("Save", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.onPrimary)
+                    Text("保存", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.onPrimary)
                 }
             }
             app.friendCode?.let { code ->
@@ -414,7 +414,7 @@ fun SettingsScreen(app: AppState) {
                 ) {
                     Icon(AppIcons.Group, null, Modifier.size(24.dp), tint = c.onSurfaceVariant)
                     Column(Modifier.weight(1f)) {
-                        Text("Your friend code", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+                        Text("你的好友代码", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
                         Text(code, fontSize = 13.sp, color = c.onSurfaceVariant)
                     }
                 }
@@ -422,22 +422,22 @@ fun SettingsScreen(app: AppState) {
         }
 
         // ---- Updates ----
-        GroupLabel("Updates")
+        GroupLabel("更新")
         SettingsCard { UpdatesSection(app) }
 
         // ---- About ----
         val ctx = androidx.compose.ui.platform.LocalContext.current
-        GroupLabel("About")
+        GroupLabel("关于")
         SettingsCard {
-            LinkRow(AppIcons.Public, "SCP Wiki", "scp-wiki.wikidot.com") {
+            LinkRow(AppIcons.Public, "SCP 基金会维基", "scp-wiki.wikidot.com") {
                 openUrl(ctx, "https://scp-wiki.wikidot.com")
             }
             Divider1()
-            LinkRow(AppIcons.SmartDisplay, "YouTube source", "SCP Archives · @SCParchives") {
+            LinkRow(AppIcons.SmartDisplay, "YouTube 音频来源", "SCP Archives · @SCParchives") {
                 openUrl(ctx, "https://www.youtube.com/@SCParchives")
             }
             Divider1()
-            LinkRow(AppIcons.Headphones, "Podcast source", "SCP Archives · open in Apple Podcasts") {
+            LinkRow(AppIcons.Headphones, "播客来源", "SCP Archives · open in Apple Podcasts") {
                 openUrl(ctx, "https://podcasts.apple.com/podcast/id1453436915")
             }
             Divider1()
@@ -447,8 +447,8 @@ fun SettingsScreen(app: AppState) {
             ) {
                 Icon(AppIcons.Info, null, Modifier.size(24.dp), tint = c.onSurfaceVariant)
                 Column(Modifier.weight(1f)) {
-                    Text("Content license", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
-                    Text("Licensed CC BY-SA 3.0 · scp-wiki.wikidot.com", fontSize = 13.sp, color = c.onSurfaceVariant, lineHeight = 18.sp)
+                    Text("内容许可协议", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+                    Text("内容依据 CC BY-SA 3.0 许可协议使用 · scp-wiki.wikidot.com", fontSize = 13.sp, color = c.onSurfaceVariant, lineHeight = 18.sp)
                 }
             }
         }
@@ -478,7 +478,7 @@ private fun GroupLabel(text: String) {
         modifier = Modifier.padding(start = 22.dp, end = 22.dp, top = 18.dp, bottom = 8.dp))
 }
 
-/** A single-line boxed text input matching the Friends "Server URL" field styling. */
+/** A single-line boxed text input matching the Friends "服务器地址" field styling. */
 @Composable
 private fun SettingsInput(value: String, placeholder: String, password: Boolean = false, onChange: (String) -> Unit) {
     val c = LocalScpScheme.current
@@ -546,7 +546,7 @@ private fun UpdatesSection(app: AppState) {
     ) {
         Icon(AppIcons.SystemUpdate, null, Modifier.size(24.dp), tint = c.onSurfaceVariant)
         Column(Modifier.weight(1f)) {
-            Text("App version", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+            Text("应用版本", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
             Text("v${BuildConfig.VERSION_NAME}", fontSize = 13.sp, color = c.onSurfaceVariant)
         }
         Box(
@@ -554,7 +554,7 @@ private fun UpdatesSection(app: AppState) {
             contentAlignment = Alignment.Center,
         ) {
             if (app.updateStatus == UpdateCheckResult.Checking) ScpSpinner(size = 22)
-            else Icon(AppIcons.Refresh, "Check for updates", Modifier.size(20.dp), tint = c.primary)
+            else Icon(AppIcons.Refresh, "检查更新", Modifier.size(20.dp), tint = c.primary)
         }
     }
 
@@ -566,8 +566,8 @@ private fun UpdatesSection(app: AppState) {
     ) {
         Icon(AppIcons.Article, null, Modifier.size(24.dp), tint = c.onSurfaceVariant)
         Column(Modifier.weight(1f)) {
-            Text("What's new", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
-            Text("See this version's release notes", fontSize = 13.sp, color = c.onSurfaceVariant)
+            Text("更新说明", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+            Text("查看当前版本更新日志", fontSize = 13.sp, color = c.onSurfaceVariant)
         }
         Icon(AppIcons.NorthEast, null, Modifier.size(18.dp), tint = c.onSurfaceVariant)
     }
@@ -575,21 +575,21 @@ private fun UpdatesSection(app: AppState) {
     Column(Modifier.padding(start = 18.dp, end = 18.dp, bottom = 16.dp)) {
         when (val status = app.updateStatus) {
             UpdateCheckResult.Idle, UpdateCheckResult.Checking -> {}
-            UpdateCheckResult.NoReleases -> Text("No releases published yet", fontSize = 13.sp, color = c.onSurfaceVariant)
-            UpdateCheckResult.UpToDate -> StatusLine(AppIcons.Check, "You're up to date", c.onSurfaceVariant)
-            is UpdateCheckResult.Error -> StatusLine(AppIcons.ErrorOutline, "Couldn't check for updates: ${status.message}", errorColor)
+            UpdateCheckResult.NoReleases -> Text("尚未发布可用版本", fontSize = 13.sp, color = c.onSurfaceVariant)
+            UpdateCheckResult.UpToDate -> StatusLine(AppIcons.Check, "已是最新版本", c.onSurfaceVariant)
+            is UpdateCheckResult.Error -> StatusLine(AppIcons.ErrorOutline, "检查更新失败：${status.message}", errorColor)
             is UpdateCheckResult.Available -> Column {
-                Text("${status.release.tagName} is available", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.primary, modifier = Modifier.padding(bottom = 10.dp))
+                Text("发现新版本 ${status.release.tagName}", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.primary, modifier = Modifier.padding(bottom = 10.dp))
                 when (val dl = app.updateDownload) {
-                    UpdateDownloadState.Idle -> ActionButton("Download & install", filled = true) { app.downloadUpdate(ctx) }
+                    UpdateDownloadState.Idle -> ActionButton("下载并安装", filled = true) { app.downloadUpdate(ctx) }
                     is UpdateDownloadState.Downloading -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         ScpSpinner(size = 20)
-                        Text("Downloading… ${dl.percent}%", fontSize = 13.sp, color = c.onSurfaceVariant)
+                        Text("正在下载… ${dl.percent}%", fontSize = 13.sp, color = c.onSurfaceVariant)
                     }
-                    is UpdateDownloadState.ReadyToInstall -> ActionButton("Install update", filled = true) { installApk(ctx, dl.file) }
+                    is UpdateDownloadState.ReadyToInstall -> ActionButton("安装更新", filled = true) { installApk(ctx, dl.file) }
                     is UpdateDownloadState.Failed -> Column {
-                        StatusLine(AppIcons.ErrorOutline, "Download failed: ${dl.message}", errorColor)
-                        Box(Modifier.padding(top = 8.dp)) { ActionButton("Retry", filled = false) { app.downloadUpdate(ctx) } }
+                        StatusLine(AppIcons.ErrorOutline, "下载失败：${dl.message}", errorColor)
+                        Box(Modifier.padding(top = 8.dp)) { ActionButton("重试", filled = false) { app.downloadUpdate(ctx) } }
                     }
                 }
             }

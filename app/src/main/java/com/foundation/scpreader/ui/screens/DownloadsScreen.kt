@@ -45,7 +45,7 @@ fun DownloadsScreen(app: AppState) {
     val paused = app.downloadsPaused
 
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 108.dp)) {
-        Text("Downloads", fontSize = 28.sp, color = c.onSurface, modifier = Modifier.padding(start = 22.dp, end = 22.dp, top = 16.dp, bottom = 6.dp))
+        Text("离线下载", fontSize = 28.sp, color = c.onSurface, modifier = Modifier.padding(start = 22.dp, end = 22.dp, top = 16.dp, bottom = 6.dp))
 
         // bulk download entry (random pool / top-rated N / entire archive)
         Row(
@@ -56,8 +56,8 @@ fun DownloadsScreen(app: AppState) {
         ) {
             Icon(AppIcons.Shuffle, null, Modifier.size(30.dp), tint = c.onSecondaryContainer)
             Column(Modifier.weight(1f)) {
-                Text("Bulk download", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = c.onSecondaryContainer)
-                Text("Random, top-rated, a series, or the entire archive", fontSize = 13.sp, color = c.onSecondaryContainer.copy(alpha = 0.85f))
+                Text("批量下载", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = c.onSecondaryContainer)
+                Text("可选随机档案、高评分档案、单个系列或整个档案库", fontSize = 13.sp, color = c.onSecondaryContainer.copy(alpha = 0.85f))
             }
             Icon(AppIcons.ChevronRight, null, Modifier.size(22.dp), tint = c.onSecondaryContainer)
         }
@@ -69,9 +69,9 @@ fun DownloadsScreen(app: AppState) {
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    if (active.isEmpty() && queued.isEmpty()) "All downloads complete"
-                    else if (paused) "Paused · ${queued.size} waiting"
-                    else "${active.size} downloading · ${queued.size} queued",
+                    if (active.isEmpty() && queued.isEmpty()) "所有下载任务已完成"
+                    else if (paused) "已暂停 · ${queued.size} 项等待中"
+                    else "正在下载 ${active.size} 项 · 排队 ${queued.size} 项",
                     fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimaryContainer, modifier = Modifier.weight(1f),
                 )
                 if (active.isNotEmpty() || queued.isNotEmpty()) {
@@ -81,7 +81,7 @@ fun DownloadsScreen(app: AppState) {
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Icon(if (paused) AppIcons.PlayArrow else AppIcons.Pause, null, Modifier.size(18.dp), tint = c.onPrimary)
-                        Text(if (paused) "Resume all" else "Pause all", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary)
+                        Text(if (paused) "全部继续" else "全部暂停", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary)
                     }
                 }
             }
@@ -89,21 +89,21 @@ fun DownloadsScreen(app: AppState) {
                 Box(Modifier.weight(1f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(c.onPrimaryContainer.copy(alpha = 0.13f))) {
                     Box(Modifier.fillMaxWidth(activeMean / 100f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(c.primary))
                 }
-                Text(if (paused) "Paused" else "$activeMean%", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimaryContainer)
+                Text(if (paused) "已暂停" else "$activeMean%", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimaryContainer)
             }
             Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Icon(AppIcons.Bolt, null, Modifier.size(16.dp), tint = c.onPrimaryContainer.copy(alpha = 0.85f))
-                Text("${done.size} saved offline", fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f))
+                Text("已离线保存 ${done.size} 项", fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f))
             }
         }
 
-        QueueSectionLabel("Downloading · ${active.size}")
+        QueueSectionLabel("正在下载 · ${active.size}")
         Column(Modifier.padding(horizontal = 16.dp)) { active.forEach { d -> ActiveCard(d, app) } }
 
-        QueueSectionLabel("In queue · ${queued.size}")
+        QueueSectionLabel("排队中 · ${queued.size}")
         Column(Modifier.padding(horizontal = 16.dp)) { queued.forEach { d -> QueuedRow(d, app) } }
 
-        QueueSectionLabel("Completed · ${done.size}")
+        QueueSectionLabel("已完成 · ${done.size}")
         Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)) { done.forEach { d -> DoneRow(d, app) } }
     }
 }

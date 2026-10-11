@@ -57,12 +57,12 @@ fun FriendsScreen(app: AppState) {
             Modifier.fillMaxWidth().padding(start = 22.dp, end = 22.dp, top = 12.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Friends", fontSize = 28.sp, color = c.onSurface, modifier = Modifier.weight(1f))
+            Text("好友", fontSize = 28.sp, color = c.onSurface, modifier = Modifier.weight(1f))
             if (app.friendsLoading) CircularProgressIndicator(Modifier.size(20.dp), color = c.primary, strokeWidth = 2.dp)
         }
 
         // ---- your code ----
-        GroupLabel2("Your friend code")
+        GroupLabel2("你的好友代码")
         Card2 {
             Row(
                 Modifier.fillMaxWidth().padding(start = 18.dp, end = 12.dp, top = 16.dp, bottom = 16.dp),
@@ -79,14 +79,14 @@ fun FriendsScreen(app: AppState) {
             }
             Divider1()
             Text(
-                "Share this code with a friend so they can add you. Adding is instant and mutual.",
+                "将代码发送给好友，即可互相添加。",
                 fontSize = 13.sp, color = c.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
             )
         }
 
         // ---- add a friend ----
-        GroupLabel2("Add a friend")
+        GroupLabel2("添加好友")
         Card2 {
             Row(
                 Modifier.fillMaxWidth().padding(start = 18.dp, end = 10.dp, top = 12.dp, bottom = 12.dp),
@@ -94,7 +94,7 @@ fun FriendsScreen(app: AppState) {
             ) {
                 Icon(AppIcons.PersonAdd, null, Modifier.size(22.dp), tint = c.onSurfaceVariant)
                 Box(Modifier.weight(1f)) {
-                    if (app.addFriendInput.isEmpty()) Text("Enter their 6-char code", fontSize = 15.sp, color = c.onSurfaceVariant)
+                    if (app.addFriendInput.isEmpty()) Text("输入对方的六位好友代码", fontSize = 15.sp, color = c.onSurfaceVariant)
                     BasicTextField(
                         value = app.addFriendInput,
                         onValueChange = { app.addFriendInput = it.uppercase().take(6) },
@@ -113,7 +113,7 @@ fun FriendsScreen(app: AppState) {
                         .clickable(enabled = ready) { app.addFriend() },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(AppIcons.Add, "Add", Modifier.size(24.dp), tint = if (ready) c.onPrimary else c.onSurfaceVariant)
+                    Icon(AppIcons.Add, "添加", Modifier.size(24.dp), tint = if (ready) c.onPrimary else c.onSurfaceVariant)
                 }
             }
         }
@@ -124,9 +124,9 @@ fun FriendsScreen(app: AppState) {
         }
 
         // ---- friends list ----
-        GroupLabel2("Your friends")
+        GroupLabel2("好友列表")
         if (app.friendsList.isEmpty()) {
-            EmptyLine(if (app.friendsError != null) (app.friendsError ?: "") else "No friends yet — share your code to get started.")
+            EmptyLine(if (app.friendsError != null) (app.friendsError ?: "") else "还没有好友。分享你的代码即可添加。")
         } else {
             Card2 {
                 app.friendsList.forEachIndexed { i, f ->
@@ -137,9 +137,9 @@ fun FriendsScreen(app: AppState) {
         }
 
         // ---- recommendations ----
-        GroupLabel2("Recommended to you")
+        GroupLabel2("推荐给你")
         if (app.recommendations.isEmpty()) {
-            EmptyLine("No recommendations yet. When a friend sends you an SCP it shows up here.")
+            EmptyLine("暂无推荐。好友发来的异常项目会出现在这里。")
         } else {
             Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 app.recommendations.forEach { rec -> RecCard(rec) { app.openRecommendation(rec) } }
@@ -163,7 +163,7 @@ private fun FriendRow(f: FriendsApi.Friend, onRemove: () -> Unit) {
             if (f.name.isNotBlank()) Text(f.friend_code, fontFamily = Mono, fontSize = 12.sp, color = c.onSurfaceVariant)
         }
         Box(Modifier.size(40.dp).clip(CircleShape).clickable(onClick = onRemove), contentAlignment = Alignment.Center) {
-            Icon(AppIcons.Delete, "Remove friend", Modifier.size(20.dp), tint = c.onSurfaceVariant)
+            Icon(AppIcons.Delete, "移除好友", Modifier.size(20.dp), tint = c.onSurfaceVariant)
         }
     }
 }
@@ -177,7 +177,7 @@ private fun RecCard(rec: FriendsApi.Rec, onClick: () -> Unit) {
             .padding(16.dp),
     ) {
         Text(
-            "FROM ${(rec.from_name.ifBlank { rec.from_code }).uppercase()}",
+            "来自 ${(rec.from_name.ifBlank { rec.from_code }).uppercase()}",
             fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp, color = c.primary,
         )
         Text(rec.scp_number.ifBlank { rec.scp_title }, fontFamily = Mono, fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
@@ -187,7 +187,7 @@ private fun RecCard(rec: FriendsApi.Rec, onClick: () -> Unit) {
         }
         Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Icon(AppIcons.Article, null, Modifier.size(16.dp), tint = c.primary)
-            Text("Open in reader", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = c.primary)
+            Text("打开档案", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = c.primary)
         }
     }
 }
@@ -205,7 +205,7 @@ fun RecommendSheet(app: AppState) {
         ) {
             Box(Modifier.padding(bottom = 16.dp).size(width = 34.dp, height = 4.dp).clip(RoundedCornerShape(2.dp)).background(c.outline.copy(alpha = 0.5f)).align(Alignment.CenterHorizontally))
 
-            Text("Recommend to a friend", fontSize = 22.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+            Text("向好友推荐", fontSize = 22.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
             app.readerItem?.let {
                 Text(it.number + " · " + it.displayTitle, fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp, bottom = 16.dp))
             }
@@ -215,7 +215,7 @@ fun RecommendSheet(app: AppState) {
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.surfaceCLow)
                     .border(1.dp, c.outlineVariant, RoundedCornerShape(14.dp)).padding(horizontal = 14.dp, vertical = 12.dp),
             ) {
-                if (app.recommendNote.isEmpty()) Text("Add a note (optional)", fontSize = 14.sp, color = c.onSurfaceVariant)
+                if (app.recommendNote.isEmpty()) Text("附言（选填）", fontSize = 14.sp, color = c.onSurfaceVariant)
                 BasicTextField(
                     value = app.recommendNote,
                     onValueChange = { app.recommendNote = it.take(280) },
@@ -228,11 +228,11 @@ fun RecommendSheet(app: AppState) {
 
             if (app.friendsList.isEmpty()) {
                 Text(
-                    if (app.friendsLoading) "Loading your friends…" else "You have no friends yet — add one from the Friends tab.",
+                    if (app.friendsLoading) "正在载入好友列表…" else "还没有好友。请先前往「好友」页面添加。",
                     fontSize = 14.sp, color = c.onSurfaceVariant,
                 )
             } else {
-                Text("SEND TO", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(bottom = 6.dp))
+                Text("发送给", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.5.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(bottom = 6.dp))
                 app.friendsList.forEach { f ->
                     Row(
                         Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).clickable { app.sendRecommendation(f.friend_code) }
@@ -289,13 +289,13 @@ private fun CircleIcon(icon: androidx.compose.ui.graphics.vector.ImageVector, en
 
 private fun copyToClipboard(ctx: Context, text: String) {
     val cm = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    cm.setPrimaryClip(ClipData.newPlainText("friend code", text))
+    cm.setPrimaryClip(ClipData.newPlainText("好友代码", text))
 }
 
 private fun shareCode(ctx: Context, code: String) {
     val send = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
-        putExtra(Intent.EXTRA_TEXT, "Add me on SCP Reader — my friend code is $code")
+        putExtra(Intent.EXTRA_TEXT, "在 SCP Reader 上添加我吧！我的好友代码是 $code")
     }
-    ctx.startActivity(Intent.createChooser(send, "Share friend code"))
+    ctx.startActivity(Intent.createChooser(send, "分享好友代码"))
 }

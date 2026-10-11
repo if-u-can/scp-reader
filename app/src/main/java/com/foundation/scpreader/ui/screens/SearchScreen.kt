@@ -75,7 +75,7 @@ fun SearchScreen(app: AppState) {
             ) {
                 Icon(AppIcons.Search, null, Modifier.size(24.dp), tint = c.onSurfaceVariant)
                 Box(Modifier.weight(1f)) {
-                    if (app.searchQuery.isEmpty()) Text("Search the archive", fontSize = 16.sp, color = c.onSurfaceVariant)
+                    if (app.searchQuery.isEmpty()) Text("检索基金会档案", fontSize = 16.sp, color = c.onSurfaceVariant)
                     BasicTextField(
                         value = app.searchQuery,
                         onValueChange = { app.onSearchQuery(it) },
@@ -89,7 +89,7 @@ fun SearchScreen(app: AppState) {
                     Modifier.size(40.dp).clip(CircleShape).clickable { app.onSearchQuery("") },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(AppIcons.Close, "Clear search", Modifier.size(20.dp), tint = c.onSurfaceVariant)
+                    Icon(AppIcons.Close, "清除检索", Modifier.size(20.dp), tint = c.onSurfaceVariant)
                 }
                 if (app.searchLoading) com.foundation.scpreader.ui.components.ScpSpinner(size = 28)
                 else Box(
@@ -98,7 +98,7 @@ fun SearchScreen(app: AppState) {
                         .clickable { app.searchFiltersOpen = true },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(AppIcons.Tune, "Filters", Modifier.size(22.dp), tint = if (filtersActive) c.primary else c.onSurfaceVariant)
+                    Icon(AppIcons.Tune, "筛选", Modifier.size(22.dp), tint = if (filtersActive) c.primary else c.onSurfaceVariant)
                 }
             }
             if (suggestions.isNotEmpty()) {
@@ -161,8 +161,8 @@ private fun SearchZeroState(app: AppState) {
             Modifier.fillMaxWidth().padding(start = 20.dp, end = 12.dp, top = 16.dp, bottom = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("RECENTLY VIEWED", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp, color = c.onSurfaceVariant, modifier = Modifier.weight(1f))
-            Text("Clear", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = c.primary,
+            Text("最近阅览", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp, color = c.onSurfaceVariant, modifier = Modifier.weight(1f))
+            Text("清除", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = c.primary,
                 modifier = Modifier.clip(RoundedCornerShape(20.dp)).clickable { app.clearSearchRecents() }.padding(horizontal = 10.dp, vertical = 6.dp))
         }
         Column(Modifier.padding(horizontal = 16.dp)) {
@@ -170,7 +170,7 @@ private fun SearchZeroState(app: AppState) {
         }
     }
 
-    SectionLabel("Top rated")
+    SectionLabel("评分最高")
     when {
         app.searchTopRatedLoading && app.searchTopRated.isEmpty() ->
             Box(Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) {
@@ -182,16 +182,16 @@ private fun SearchZeroState(app: AppState) {
             }
         else -> Text(
             if (app.searchRecentlyViewed.isEmpty())
-                "Type to search SCPs, tales and GoI documents across the whole wiki."
+                "输入关键词，检索基金会维基的异常项目、故事与相关组织档案。"
             else
-                "Couldn't load top-rated entries right now.",
+                "暂时无法载入高评分档案。",
             fontSize = 14.sp, color = c.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
         )
     }
 }
 
-private val searchTypeDefs = listOf("all" to "All", "scp" to "SCP", "tale" to "Tales", "goi" to "GoI")
+private val searchTypeDefs = listOf("all" to "全部", "scp" to "SCP", "tale" to "故事", "goi" to "相关组织")
 
 /** Popup with all search filters - type, object class and tags - sharing one chip style. */
 @OptIn(ExperimentalLayoutApi::class)
@@ -205,15 +205,15 @@ private fun FilterSheet(app: AppState) {
                 .background(c.surfaceContainer).verticalScroll(rememberScrollState()).padding(20.dp),
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("Filters", fontSize = 20.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.weight(1f))
-                if (filtersActive) Text("Reset", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.primary,
+                Text("筛选", fontSize = 20.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.weight(1f))
+                if (filtersActive) Text("重置", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.primary,
                     modifier = Modifier.clip(RoundedCornerShape(20.dp)).clickable { app.clearSearchFilters() }.padding(horizontal = 12.dp, vertical = 6.dp))
                 Box(Modifier.size(40.dp).clip(CircleShape).background(c.surfaceCHigh).clickable { app.searchFiltersOpen = false }, contentAlignment = Alignment.Center) {
-                    Icon(AppIcons.Close, "Close", Modifier.size(22.dp), tint = c.onSurface)
+                    Icon(AppIcons.Close, "关闭", Modifier.size(22.dp), tint = c.onSurface)
                 }
             }
 
-            SectionLabel("Type")
+            SectionLabel("类型")
             FilterFlow {
                 searchTypeDefs.forEach { (k, label) ->
                     val active = app.typeFilter == k
@@ -222,14 +222,14 @@ private fun FilterSheet(app: AppState) {
                 }
             }
 
-            SectionLabel("Availability")
+            SectionLabel("可用内容")
             FilterFlow {
                 val active = app.audioOnly
                 val st = c.chipStyle(active)
-                FilterChip("Narration available", active, st.bg, st.fg, st.border) { app.toggleAudioOnly() }
+                FilterChip("提供朗读", active, st.bg, st.fg, st.border) { app.toggleAudioOnly() }
             }
 
-            SectionLabel("Object class")
+            SectionLabel("项目等级")
             FilterFlow {
                 classDefs.forEach { label ->
                     val active = app.classFilter == label
@@ -244,7 +244,7 @@ private fun FilterSheet(app: AppState) {
                 }
             }
 
-            SectionLabel("Tags")
+            SectionLabel("标签")
             var tagQuery by remember { mutableStateOf("") }
             Row(
                 Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(14.dp)).background(c.surfaceCLow)
@@ -253,7 +253,7 @@ private fun FilterSheet(app: AppState) {
             ) {
                 Icon(AppIcons.Sell, null, Modifier.size(19.dp), tint = c.onSurfaceVariant)
                 Box(Modifier.weight(1f)) {
-                    if (tagQuery.isEmpty()) Text("Filter tags, e.g. humanoid", fontSize = 15.sp, color = c.onSurfaceVariant)
+                    if (tagQuery.isEmpty()) Text("筛选标签，例如 humanoid", fontSize = 15.sp, color = c.onSurfaceVariant)
                     BasicTextField(
                         value = tagQuery,
                         onValueChange = { tagQuery = it },
@@ -264,7 +264,7 @@ private fun FilterSheet(app: AppState) {
                     )
                 }
                 if (tagQuery.isNotEmpty()) Box(Modifier.size(36.dp).clip(CircleShape).clickable { tagQuery = "" }, contentAlignment = Alignment.Center) {
-                    Icon(AppIcons.Close, "Clear", Modifier.size(18.dp), tint = c.onSurfaceVariant)
+                    Icon(AppIcons.Close, "清除", Modifier.size(18.dp), tint = c.onSurfaceVariant)
                 }
             }
             Box(Modifier.height(14.dp))
@@ -273,7 +273,7 @@ private fun FilterSheet(app: AppState) {
             // Active tags stay visible (and removable) even when they don't match the filter text.
             val shownTags = (app.activeTags + matches).distinct()
             FilterFlow {
-                if (shownTags.isEmpty()) Text("No matching tags", fontSize = 13.sp, color = c.onSurfaceVariant)
+                if (shownTags.isEmpty()) Text("没有匹配的标签", fontSize = 13.sp, color = c.onSurfaceVariant)
                 shownTags.forEach { label ->
                     val active = app.activeTags.contains(label)
                     val st = c.chipStyle(active)
@@ -286,7 +286,7 @@ private fun FilterSheet(app: AppState) {
                     .clickable { app.searchFiltersOpen = false },
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
             ) {
-                Text("Done", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary)
+                Text("完成", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary)
             }
         }
     }
@@ -308,9 +308,9 @@ private fun SortSelector(app: AppState) {
     val c = LocalScpScheme.current
     var open by remember { mutableStateOf(false) }
     val label = when (app.searchSort) {
-        com.foundation.scpreader.SortMode.Relevance -> "Relevance"
-        com.foundation.scpreader.SortMode.Rating -> "Top rated"
-        com.foundation.scpreader.SortMode.Newest -> "Newest"
+        com.foundation.scpreader.SortMode.Relevance -> "相关度"
+        com.foundation.scpreader.SortMode.Rating -> "评分最高"
+        com.foundation.scpreader.SortMode.Newest -> "最新"
     }
     Box {
         Row(
@@ -322,9 +322,9 @@ private fun SortSelector(app: AppState) {
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             listOf(
-                com.foundation.scpreader.SortMode.Relevance to "Relevance",
-                com.foundation.scpreader.SortMode.Rating to "Top rated",
-                com.foundation.scpreader.SortMode.Newest to "Newest",
+                com.foundation.scpreader.SortMode.Relevance to "相关度",
+                com.foundation.scpreader.SortMode.Rating to "评分最高",
+                com.foundation.scpreader.SortMode.Newest to "最新",
             ).forEach { (mode, l) ->
                 DropdownMenuItem(
                     text = { Text(l, fontWeight = if (app.searchSort == mode) FontWeight.SemiBold else FontWeight.Normal, color = if (app.searchSort == mode) c.primary else c.onSurface) },

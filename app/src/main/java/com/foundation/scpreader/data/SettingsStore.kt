@@ -29,7 +29,7 @@ data class Settings(
     val heroMode: HeroMode = HeroMode.ContinueReading,
     val sponsorCategories: Set<String> = com.foundation.scpreader.playback.SponsorCategory.DEFAULT_ENABLED,
     /** Regional/language branches (by [Branch.code]) that feed the random/of-the-day discovery. */
-    val selectedBranches: Set<String> = setOf(Branch.EN.code),
+    val selectedBranches: Set<String> = setOf(Branch.CN.code),
     /** App version whose "What's new" sheet has already been shown; blank on a fresh install. */
     val whatsNewSeen: String = "",
     /** Signed-in Wikidot session cookie + username (for in-app voting); blank when logged out. */
@@ -74,7 +74,7 @@ class SettingsStore(private val context: Context) {
             excludedClasses = p[Keys.excluded] ?: emptySet(),
             heroMode = p[Keys.hero]?.let { runCatching { HeroMode.valueOf(it) }.getOrNull() } ?: HeroMode.ContinueReading,
             sponsorCategories = p[Keys.sponsorCats] ?: com.foundation.scpreader.playback.SponsorCategory.DEFAULT_ENABLED,
-            selectedBranches = p[Keys.branches] ?: setOf(Branch.EN.code),
+            selectedBranches = p[Keys.branches] ?: setOf(Branch.CN.code),
             whatsNewSeen = p[Keys.whatsNewSeen] ?: "",
             wikidotSession = p[Keys.wikidotSession] ?: "",
             wikidotUser = p[Keys.wikidotUser] ?: "",

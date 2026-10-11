@@ -123,7 +123,7 @@ class AppState(
     var heroMode by mutableStateOf(HeroMode.ContinueReading)
     var excludedClasses by mutableStateOf(setOf<String>())
     /** Selected regional/language branches (by code) that feed random discovery & of-the-day. */
-    var selectedBranches by mutableStateOf(setOf(com.foundation.scpreader.data.Branch.EN.code))
+    var selectedBranches by mutableStateOf(setOf(com.foundation.scpreader.data.Branch.CN.code))
 
     var downloadsPaused by mutableStateOf(false)
     var readerMenuOpen by mutableStateOf(false)

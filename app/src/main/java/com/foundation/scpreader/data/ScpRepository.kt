@@ -66,8 +66,8 @@ class ScpRepository(
     // Always non-empty; defaults to the English main branch.
     // Kept in settings-list (enum) order so the main branch (EN) leads and search/discovery
     // priority follows how the branches are listed in Settings.
-    @Volatile private var branches: List<Branch> = listOf(Branch.EN)
-    fun setBranches(list: List<Branch>) { branches = list.ifEmpty { listOf(Branch.EN) }.sortedBy { it.ordinal } }
+    @Volatile private var branches: List<Branch> = listOf(Branch.CN)
+    fun setBranches(list: List<Branch>) { branches = list.ifEmpty { listOf(Branch.CN) }.sortedBy { it.ordinal } }
 
     // ---- Wikidot voting (the signed-in user's own +1/-1 on articles) ----
     @Volatile private var wikidotSession: String? = null

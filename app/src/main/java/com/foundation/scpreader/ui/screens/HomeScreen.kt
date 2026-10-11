@@ -58,7 +58,7 @@ import com.foundation.scpreader.ui.components.chipStyle
 import com.foundation.scpreader.ui.theme.LocalScpScheme
 import kotlin.math.roundToInt
 
-private val typeDefs = listOf("all" to "All", "scp" to "SCP", "tale" to "Tales", "goi" to "GoI", "series" to "Series")
+private val typeDefs = listOf("all" to "全部", "scp" to "SCP", "tale" to "故事", "goi" to "相关组织", "series" to "系列")
 
 @Composable
 fun TypeChipRow(app: AppState, padding: Modifier) {
@@ -88,7 +88,7 @@ private fun SeriesPickerRow(app: AppState) {
                     .clickable { app.selectFeedSeries(n) }.padding(horizontal = 16.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("Series $n", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = if (active) c.onPrimary else c.onSurfaceVariant)
+                Text("第 $n 系列", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = if (active) c.onPrimary else c.onSurfaceVariant)
             }
         }
     }
@@ -130,15 +130,15 @@ fun HomeScreen(app: AppState) {
             verticalAlignment = Alignment.Top,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("FOUNDATION ARCHIVE", fontSize = 13.sp, fontWeight = FontWeight.Medium, letterSpacing = 1.4.sp, color = c.primary)
-                Text("Secure. Contain. Protect.", fontSize = 27.sp, color = c.onSurface, lineHeight = 30.sp)
+                Text("基金会档案库", fontSize = 13.sp, fontWeight = FontWeight.Medium, letterSpacing = 1.4.sp, color = c.primary)
+                Text("控制。收容。保护。", fontSize = 27.sp, color = c.onSurface, lineHeight = 30.sp)
             }
             // Settings lives here (top-right action), not in the bottom navigation bar.
             Box(
                 Modifier.clip(CircleShape).clickable { app.go(com.foundation.scpreader.Screen.Settings) }.padding(8.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcons.Settings, "Settings", Modifier.size(26.dp), tint = c.onSurfaceVariant)
+                Icon(AppIcons.Settings, "设置", Modifier.size(26.dp), tint = c.onSurfaceVariant)
             }
         }
 
@@ -151,7 +151,7 @@ fun HomeScreen(app: AppState) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Icon(AppIcons.Search, null, Modifier.size(22.dp), tint = c.onSurfaceVariant)
-            Text("Search items, tales, GoI…", fontSize = 15.sp, color = c.onSurfaceVariant)
+            Text("检索异常项目、故事及相关组织档案…", fontSize = 15.sp, color = c.onSurfaceVariant)
         }
 
         if (app.offline) OfflineBanner()
@@ -168,7 +168,7 @@ fun HomeScreen(app: AppState) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Icon(AppIcons.Shuffle, null, Modifier.size(16.dp), tint = c.primary)
-            Text("RANDOM ENTRIES", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.6.sp, color = c.primary)
+            Text("随机档案", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.6.sp, color = c.primary)
             if (app.feedIsRandom) {
                 Box(Modifier.weight(1f))
                 val active = app.narratedOnly
@@ -180,7 +180,7 @@ fun HomeScreen(app: AppState) {
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Icon(AppIcons.Headphones, null, Modifier.size(16.dp), tint = st.fg)
-                    Text("Narrated", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = st.fg)
+                    Text("有朗读", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = st.fg)
                 }
             }
         }
@@ -201,25 +201,25 @@ fun HomeScreen(app: AppState) {
 private fun HeroSlot(app: AppState) {
     val c = LocalScpScheme.current
     val (label, icon) = when (app.heroMode) {
-        HeroMode.ContinueReading -> "CONTINUE READING" to AppIcons.History
-        HeroMode.ScpOfTheDay -> "SCP OF THE DAY" to AppIcons.Casino
-        HeroMode.Trending -> "TRENDING" to AppIcons.Bolt
-        HeroMode.RecentlyViewed -> "RECENTLY VIEWED" to AppIcons.History
-        HeroMode.FriendRecommendation -> "FRIEND RECOMMENDATION" to AppIcons.Group
+        HeroMode.ContinueReading -> "继续阅读" to AppIcons.History
+        HeroMode.ScpOfTheDay -> "今日异常项目" to AppIcons.Casino
+        HeroMode.Trending -> "热门档案" to AppIcons.Bolt
+        HeroMode.RecentlyViewed -> "最近阅览" to AppIcons.History
+        HeroMode.FriendRecommendation -> "好友推荐" to AppIcons.Group
     }
 
     if (app.heroMode == HeroMode.FriendRecommendation) {
         HeroHeader(label, icon)
         val rec = app.recommendations.firstOrNull()
         if (rec == null) {
-            HeroPlaceholder("When a friend recommends an SCP it shows up here. Share your friend code from the Friends tab.")
+            HeroPlaceholder("好友推荐的项目会显示在这里。可以到「好友」页面分享自己的好友代码。")
         } else {
             Column(
                 Modifier.padding(horizontal = 16.dp).padding(bottom = 18.dp).fillMaxWidth()
                     .clip(RoundedCornerShape(28.dp)).background(c.primaryContainer)
                     .clickable { app.openRecommendation(rec) }.padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 16.dp),
             ) {
-                Text("FROM ${(rec.from_name.ifBlank { rec.from_code }).uppercase()}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.6.sp, color = c.onPrimaryContainer)
+                Text("来自 ${(rec.from_name.ifBlank { rec.from_code }).uppercase()}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.6.sp, color = c.onPrimaryContainer)
                 Text(rec.scp_number.ifBlank { rec.scp_title }, fontFamily = Mono, fontSize = 13.sp, color = c.onPrimaryContainer, modifier = Modifier.padding(top = 8.dp))
                 Text(rec.scp_title.ifBlank { rec.scp_number }, fontSize = 22.sp, fontWeight = FontWeight.Medium, color = c.onPrimaryContainer, lineHeight = 25.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
                 if (rec.note.isNotBlank()) {
@@ -234,7 +234,7 @@ private fun HeroSlot(app: AppState) {
         val items = app.recentlyViewed
         HeroHeader(label, icon)
         if (items.isEmpty()) {
-            HeroPlaceholder("Open any entry — the ones you read show up here.")
+            HeroPlaceholder("打开任意档案，已读项目就会显示在这里。")
         } else {
             Row(Modifier.horizontalScroll(rememberScrollState()).padding(start = 16.dp, end = 8.dp, bottom = 18.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items.forEach { item ->
@@ -268,8 +268,8 @@ private fun HeroSlot(app: AppState) {
         if (item == null) {
             HeroPlaceholder(
                 when (app.heroMode) {
-                    HeroMode.ContinueReading -> "Open any entry to start reading — you can jump back in here."
-                    else -> "Loading…"
+                    HeroMode.ContinueReading -> "打开档案开始阅读，之后就能从这里接着读。"
+                    else -> "正在载入…"
                 }
             )
         } else {
@@ -286,7 +286,7 @@ private fun HeroSlot(app: AppState) {
                     Box(Modifier.padding(top = 14.dp).fillMaxWidth().height(5.dp).clip(RoundedCornerShape(3.dp)).background(c.onPrimaryContainer.copy(alpha = 0.18f))) {
                         Box(Modifier.fillMaxWidth(frac).height(5.dp).clip(RoundedCornerShape(3.dp)).background(c.primary))
                     }
-                    Text("${(frac * 100).roundToInt()}% read", fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f), modifier = Modifier.padding(top = 7.dp))
+                    Text("已阅读 ${(frac * 100).roundToInt()}%", fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f), modifier = Modifier.padding(top = 7.dp))
                 } else {
                     Text("★ ${item.rating} · ${item.objectClass}", fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f), modifier = Modifier.padding(top = 10.dp))
                 }
@@ -328,13 +328,13 @@ private fun OfflineBanner() {
     ) {
         Icon(AppIcons.CloudOff, null, Modifier.size(20.dp), tint = c.primary)
         Column(Modifier.weight(1f)) {
-            Text("No internet connection", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
-            Text("Showing what's saved — new entries need a connection.", fontSize = 12.sp, color = c.onSurfaceVariant, lineHeight = 16.sp)
+            Text("网络连接已断开", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+            Text("仅显示已保存的档案；获取新档案需要联网。", fontSize = 12.sp, color = c.onSurfaceVariant, lineHeight = 16.sp)
         }
     }
 }
 
-/** Full-screen "You're offline" state (mockup: Offline Screen) shown when nothing is cached. */
+/** Full-screen "当前处于离线状态" state (mockup: Offline Screen) shown when nothing is cached. */
 @Composable
 private fun OfflineScreen(app: AppState) {
     val c = LocalScpScheme.current
@@ -352,7 +352,7 @@ private fun OfflineScreen(app: AppState) {
                 Modifier.clip(CircleShape).clickable { app.go(com.foundation.scpreader.Screen.Settings) }.padding(8.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcons.Settings, "Settings", Modifier.size(26.dp), tint = c.onSurfaceVariant)
+                Icon(AppIcons.Settings, "设置", Modifier.size(26.dp), tint = c.onSurfaceVariant)
             }
         }
 
@@ -362,7 +362,7 @@ private fun OfflineScreen(app: AppState) {
         ) {
             Box(Modifier.weight(1f))
 
-            // signal-lost glyph with an "available offline" badge
+            // signal-lost glyph with an "可离线阅读" badge
             Box(contentAlignment = Alignment.Center) {
                 Box(
                     Modifier.size(132.dp).clip(RoundedCornerShape(40.dp)).background(c.surfaceCLow)
@@ -381,10 +381,10 @@ private fun OfflineScreen(app: AppState) {
                 }
             }
 
-            Text("SIGNAL LOST", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.4.sp, color = c.primary, modifier = Modifier.padding(top = 30.dp))
-            Text("You're offline", fontSize = 27.sp, fontWeight = FontWeight.Medium, color = c.onSurface, lineHeight = 31.sp, modifier = Modifier.padding(top = 8.dp))
+            Text("信号中断", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.4.sp, color = c.primary, modifier = Modifier.padding(top = 30.dp))
+            Text("当前处于离线状态", fontSize = 27.sp, fontWeight = FontWeight.Medium, color = c.onSurface, lineHeight = 31.sp, modifier = Modifier.padding(top = 8.dp))
             Text(
-                "Can't reach the Foundation network right now. Everything you've saved is still fully readable.",
+                "暂时无法连接基金会网络，已保存的档案仍可正常阅览。",
                 fontSize = 14.sp, lineHeight = 22.sp, color = c.onSurfaceVariant,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 modifier = Modifier.padding(top = 10.dp).width(270.dp),
@@ -397,10 +397,10 @@ private fun OfflineScreen(app: AppState) {
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Icon(AppIcons.Refresh, null, Modifier.size(21.dp), tint = c.onPrimary)
-                Text("Retry connection", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary)
+                Text("重新连接", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary)
             }
             app.lastFeedSyncAt?.let { ts ->
-                Text("Last synced ${relativeTime(ts)}", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 12.dp))
+                Text("上次同步：${relativeTime(ts)}", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 12.dp))
             }
 
             Box(Modifier.weight(1f))
@@ -416,9 +416,9 @@ private fun OfflineScreen(app: AppState) {
                         Icon(AppIcons.DownloadForOffline, null, Modifier.size(23.dp), tint = c.onPrimaryContainer)
                     }
                     Column(Modifier.weight(1f)) {
-                        Text("${done.size} item${if (done.size == 1) "" else "s"} ready offline", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
+                        Text("已有 ${done.size} 份档案可离线阅读", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
                         Text(
-                            if (done.isEmpty()) "Nothing saved yet" else formatSize(sizeBytes) + if (hasAudio) " · text & narration" else " · text",
+                            if (done.isEmpty()) "尚未保存任何档案" else formatSize(sizeBytes) + if (hasAudio) " · 文本及朗读" else " · 文本",
                             fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 1.dp),
                         )
                     }
@@ -430,7 +430,7 @@ private fun OfflineScreen(app: AppState) {
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
                     ) {
                         Icon(AppIcons.LibraryBooks, null, Modifier.size(19.dp), tint = c.onSecondaryContainer)
-                        Text("Open library", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.onSecondaryContainer, modifier = Modifier.padding(start = 8.dp))
+                        Text("打开档案库", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.onSecondaryContainer, modifier = Modifier.padding(start = 8.dp))
                     }
                     val recent = app.recentlyViewed.firstOrNull()
                     Box(
@@ -450,10 +450,10 @@ private fun OfflineScreen(app: AppState) {
 private fun relativeTime(ts: Long): String {
     val mins = ((System.currentTimeMillis() - ts) / 60000L).coerceAtLeast(0)
     return when {
-        mins < 1 -> "just now"
-        mins < 60 -> "$mins min ago"
-        mins < 1440 -> "${mins / 60} h ago"
-        else -> "${mins / 1440} d ago"
+        mins < 1 -> "刚刚"
+        mins < 60 -> "$mins 分钟前"
+        mins < 1440 -> "${mins / 60} 小时前"
+        else -> "${mins / 1440} 天前"
     }
 }
 
@@ -469,7 +469,7 @@ private fun ErrorBlock(message: String, onRetry: () -> Unit) {
     val c = LocalScpScheme.current
     Column(Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(message, fontSize = 14.sp, color = c.onSurfaceVariant)
-        Text("Retry", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.primary,
+        Text("重试", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.primary,
             modifier = Modifier.padding(top = 12.dp).clip(RoundedCornerShape(20.dp)).clickable(onClick = onRetry).padding(horizontal = 18.dp, vertical = 8.dp))
     }
 }
@@ -479,7 +479,7 @@ private fun LoadMore(loading: Boolean, onClick: () -> Unit) {
     val c = LocalScpScheme.current
     Box(Modifier.fillMaxWidth().padding(vertical = 16.dp), contentAlignment = Alignment.Center) {
         if (loading) ScpSpinner(size = 40)
-        else Text("Load more", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.primary,
+        else Text("加载更多", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.primary,
             modifier = Modifier.clip(RoundedCornerShape(20.dp)).clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 8.dp))
     }
 }

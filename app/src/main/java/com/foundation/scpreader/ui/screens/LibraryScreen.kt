@@ -44,7 +44,7 @@ import com.foundation.scpreader.ui.components.FilterChip
 import com.foundation.scpreader.ui.theme.LocalScpScheme
 import com.foundation.scpreader.ui.theme.classColors
 
-private val libDefs = listOf("all" to "All", "downloaded" to "Downloaded", "audio" to "With audio")
+private val libDefs = listOf("all" to "全部", "downloaded" to "已下载", "audio" to "含朗读")
 
 private data class LibRow(val item: com.foundation.scpreader.data.ScpItem, val size: String?, val downloaded: Boolean, val bookmarked: Boolean, val audio: Boolean)
 
@@ -55,7 +55,7 @@ fun LibraryScreen(app: AppState) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val done = app.downloads.filter { it.status == DlStatus.DONE }
     val downloadedBytes = done.sumOf { it.sizeBytes }
-    // Whole-device storage, split into the app's articles/audio and everything else ("Other").
+    // Whole-device storage, split into the app's articles/audio and everything else ("其他").
     val (capacity, freeBytes) = remember {
         runCatching { val s = android.os.StatFs(ctx.filesDir.absolutePath); s.totalBytes to s.availableBytes }.getOrDefault(0L to 0L)
     }
@@ -93,10 +93,10 @@ fun LibraryScreen(app: AppState) {
                         .clickable { app.go(com.foundation.scpreader.Screen.Home) },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(AppIcons.ArrowBack, "Back", Modifier.size(24.dp), tint = c.onSurface)
+                    Icon(AppIcons.ArrowBack, "返回", Modifier.size(24.dp), tint = c.onSurface)
                 }
             }
-            Text("Library", fontSize = 28.sp, color = c.onSurface)
+            Text("档案库", fontSize = 28.sp, color = c.onSurface)
         }
 
         // storage card
@@ -107,10 +107,10 @@ fun LibraryScreen(app: AppState) {
         ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
-                    if (capacity > 0) formatGb(usedBytes) + " of " + formatGb(capacity) + " used" else formatSize(downloadedBytes) + " used",
+                    if (capacity > 0) formatGb(usedBytes) + " of " + formatGb(capacity) + " 已使用" else formatSize(downloadedBytes) + " 已使用",
                     fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.onSurface,
                 )
-                Text("${done.size} items", fontSize = 14.sp, color = c.onSurfaceVariant)
+                Text("${done.size} 份档案", fontSize = 14.sp, color = c.onSurfaceVariant)
             }
             Row(Modifier.padding(top = 12.dp).fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(c.surfaceCHighest)) {
                 if (articleFrac > 0f) Box(Modifier.fillMaxWidth(articleFrac).height(8.dp).background(c.primary))
@@ -122,9 +122,9 @@ fun LibraryScreen(app: AppState) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                StorageLegend(c.primary, "Articles", formatSize(articleBytes))
-                StorageLegend(c.tertiaryContainer, "Audio", formatSize(audioBytes))
-                StorageLegend(c.onSurfaceVariant, "Other", formatGb(otherBytes))
+                StorageLegend(c.primary, "文章", formatSize(articleBytes))
+                StorageLegend(c.tertiaryContainer, "音频", formatSize(audioBytes))
+                StorageLegend(c.onSurfaceVariant, "其他", formatGb(otherBytes))
             }
         }
 
@@ -144,7 +144,7 @@ fun LibraryScreen(app: AppState) {
         }
 
         if (items.isEmpty()) {
-            Text("Nothing here yet. Bookmark an article (or download it) from the reader to save it to your library.",
+            Text("这里还是空的。在阅读器中收藏或下载档案，即可将其加入档案库。",
                 fontSize = 14.sp, color = c.onSurfaceVariant, lineHeight = 20.sp,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp))
         } else {
@@ -170,10 +170,10 @@ fun LibraryScreen(app: AppState) {
     }
 }
 
-/** Canonical class order for the "browse offline by class" tiles; unknown classes sort last. */
+/** Canonical class order for the "按项目等级浏览离线档案" tiles; unknown classes sort last. */
 private val classOrder = listOf("Safe", "Euclid", "Keter", "Thaumiel", "Archon", "Neutralized", "Explained", "Apollyon", "Esoteric", "Maksur")
 
-/** "BROWSE BY CLASS" tile row - one tile per object class present in the library, plus All. */
+/** "按项目等级浏览" tile row - one tile per object class present in the library, plus All. */
 @Composable
 private fun BrowseByClass(app: AppState, classesInLibrary: List<String>) {
     if (classesInLibrary.isEmpty()) return
@@ -183,14 +183,14 @@ private fun BrowseByClass(app: AppState, classesInLibrary: List<String>) {
         compareBy({ classOrder.indexOf(it).let { i -> if (i < 0) Int.MAX_VALUE else i } }, { it })
     )
     Text(
-        "BROWSE BY CLASS", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.6.sp, color = c.primary,
+        "按项目等级浏览", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.6.sp, color = c.primary,
         modifier = Modifier.padding(start = 22.dp, end = 22.dp, top = 4.dp, bottom = 10.dp),
     )
     Row(
         Modifier.padding(start = 16.dp, end = 16.dp, bottom = 14.dp).fillMaxWidth().horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        ClassTile(app, "all", "All", R.drawable.class_all, classesInLibrary.size, null)
+        ClassTile(app, "all", "全部", R.drawable.class_all, classesInLibrary.size, null)
         classes.forEach { cls ->
             ClassTile(app, cls, cls, classBadgeRes(cls), counts[cls] ?: 0, classColors(cls, app.isDark).second)
         }

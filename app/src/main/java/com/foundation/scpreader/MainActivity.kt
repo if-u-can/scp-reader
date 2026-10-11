@@ -159,11 +159,11 @@ private data class NavDef(val screen: Screen, val iconActive: ImageVector, val i
 
 // Settings is intentionally absent - it lives as an action in the Home top bar, not the bottom nav.
 private val navDefs = listOf(
-    NavDef(Screen.Home, AppIcons.Home, AppIcons.HomeOutlined, "Home"),
-    NavDef(Screen.Search, AppIcons.Search, AppIcons.SearchOutlined, "Search"),
-    NavDef(Screen.Library, AppIcons.LibraryBooks, AppIcons.LibraryBooksOutlined, "Library"),
-    NavDef(Screen.Downloads, AppIcons.DownloadForOffline, AppIcons.DownloadForOfflineOutlined, "Downloads"),
-    NavDef(Screen.Friends, AppIcons.Group, AppIcons.GroupOutlined, "Friends"),
+    NavDef(Screen.Home, AppIcons.Home, AppIcons.HomeOutlined, "首页"),
+    NavDef(Screen.Search, AppIcons.Search, AppIcons.SearchOutlined, "检索"),
+    NavDef(Screen.Library, AppIcons.LibraryBooks, AppIcons.LibraryBooksOutlined, "档案库"),
+    NavDef(Screen.Downloads, AppIcons.DownloadForOffline, AppIcons.DownloadForOfflineOutlined, "离线下载"),
+    NavDef(Screen.Friends, AppIcons.Group, AppIcons.GroupOutlined, "好友"),
 )
 
 @Composable
@@ -246,9 +246,9 @@ private fun UpdateBanner(app: AppState, tag: String) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Icon(AppIcons.SystemUpdate, null, Modifier.size(20.dp), tint = c.onSecondaryContainer)
-        Text("$tag is available — tap to update", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = c.onSecondaryContainer, modifier = Modifier.weight(1f))
+        Text("发现新版本 $tag，点击更新", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = c.onSecondaryContainer, modifier = Modifier.weight(1f))
         Icon(
-            AppIcons.Close, "Dismiss", Modifier.size(18.dp)
+            AppIcons.Close, "忽略", Modifier.size(18.dp)
                 .clickable { app.updateBannerDismissed = true },
             tint = c.onSecondaryContainer,
         )
@@ -260,7 +260,7 @@ private fun SplashOverlay() {
     // Blank white → just the access line, like the original.
     Box(Modifier.fillMaxSize().background(Color.White), contentAlignment = Alignment.Center) {
         Text(
-            "LEVEL 5 ACCESS GRANTED",
+            "5级权限已授权",
             fontFamily = Mono,
             color = Color(0xFF141316),
             fontSize = 16.sp,

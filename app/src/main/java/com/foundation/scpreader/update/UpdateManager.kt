@@ -10,7 +10,7 @@ import okhttp3.Request
 import java.io.File
 import java.io.IOException
 
-private const val REPO = "ThePixelPro366/scp-reader"
+private const val REPO = "if-u-can/scp-reader"
 private const val API_VERSION = "2022-11-28"
 
 @Serializable
