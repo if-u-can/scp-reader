@@ -98,9 +98,9 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
     val thisPlaying = episode != null && playback.episode?.mediaId == episode.mediaId && playback.isPlaying
 
     val offlineLabel = when (dl.state) {
-        ReaderDlState.Done -> if (dl.audio) "Article + audio" else "Article"
-        ReaderDlState.Downloading -> "Downloading ${dl.pct}%"
-        else -> "Not downloaded"
+        ReaderDlState.Done -> if (dl.audio) "档案及音频" else "档案"
+        ReaderDlState.Downloading -> "正在下载 ${dl.pct}%"
+        else -> "未下载"
     }
     val offlineColor = if (dl.state == ReaderDlState.Done) c.primary else c.onSurfaceVariant
 
@@ -150,7 +150,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
             IconBtn(AppIcons.Group, 24) { app.openRecommendSheet() }
             val bookmarked = app.readerBookmarked
             Box(Modifier.size(44.dp).clip(CircleShape).clickable { app.toggleReaderBookmark() }, contentAlignment = Alignment.Center) {
-                Icon(if (bookmarked) AppIcons.Bookmark else AppIcons.BookmarkBorder, "Bookmark", Modifier.size(24.dp), tint = if (bookmarked) c.primary else c.onSurface)
+                Icon(if (bookmarked) AppIcons.Bookmark else AppIcons.BookmarkBorder, "收藏", Modifier.size(24.dp), tint = if (bookmarked) c.primary else c.onSurface)
             }
             Box(Modifier.size(44.dp).clickable { app.onReaderDownloadTap() }, contentAlignment = Alignment.Center) {
                 when (dl.state) {
@@ -185,7 +185,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
             } else {
                 Column(Modifier.fillMaxSize().verticalScroll(scrollState).padding(start = 22.dp, end = 22.dp, bottom = 24.dp)) {
                     Text(
-                        "OBJECT CLASS · ${item.objectClass.uppercase()}", fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp, color = classText,
+                        "项目等级 · ${item.objectClass.uppercase()}", fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp, color = classText,
                         modifier = Modifier.padding(top = 6.dp).clip(RoundedCornerShape(8.dp)).background(classBg).padding(horizontal = 11.dp, vertical = 5.dp),
                     )
                     Text(item.number, fontFamily = Mono, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.primary, modifier = Modifier.padding(top = 18.dp))
@@ -199,14 +199,14 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                         ) {
                             Icon(AppIcons.Public, null, Modifier.size(22.dp), tint = c.onSecondaryContainer)
                             Column(Modifier.weight(1f).clip(RoundedCornerShape(8.dp)).clickable { app.openTranslation() }) {
-                                Text("Translation available", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.onSecondaryContainer)
-                                Text("Read this in ${suggestion.branch.displayName}", fontSize = 12.sp, color = c.onSecondaryContainer.copy(alpha = 0.85f))
+                                Text("存在其他分部版本", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.onSecondaryContainer)
+                                Text("阅读 ${suggestion.branch.displayName} 分部版本", fontSize = 12.sp, color = c.onSecondaryContainer.copy(alpha = 0.85f))
                             }
                             Box(Modifier.size(36.dp).clip(CircleShape).clickable { app.openTranslation() }, contentAlignment = Alignment.Center) {
-                                Icon(AppIcons.NorthEast, "Open translation", Modifier.size(20.dp), tint = c.onSecondaryContainer)
+                                Icon(AppIcons.NorthEast, "切换分部", Modifier.size(20.dp), tint = c.onSecondaryContainer)
                             }
                             Box(Modifier.size(36.dp).clip(CircleShape).clickable { app.dismissTranslation() }, contentAlignment = Alignment.Center) {
-                                Icon(AppIcons.Close, "Dismiss", Modifier.size(18.dp), tint = c.onSecondaryContainer)
+                                Icon(AppIcons.Close, "忽略", Modifier.size(18.dp), tint = c.onSecondaryContainer)
                             }
                         }
                     }
@@ -221,7 +221,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                                 Icon(if (thisPlaying) AppIcons.Pause else AppIcons.PlayArrow, null, Modifier.size(26.dp), tint = c.onPrimary)
                             }
                             Column(Modifier.weight(1f)) {
-                                Text(if (thisPlaying) "Playing narration" else "Narration available", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimaryContainer)
+                                Text(if (thisPlaying) "正在播放朗读" else "提供朗读", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimaryContainer)
                                 Text("SCP Archives · ${fmtDuration(episode.durationSec)}", fontSize = 13.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f))
                             }
                             Icon(AppIcons.Headphones, null, Modifier.size(22.dp), tint = c.onPrimaryContainer)
@@ -247,8 +247,8 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                         ) {
                             Icon(AppIcons.Palette, null, Modifier.size(22.dp), tint = c.onPrimaryContainer)
                             Column(Modifier.weight(1f)) {
-                                Text("View original theme", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimaryContainer)
-                                Text("This article has custom styling — open the styled page", fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f))
+                                Text("查看原始排版", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimaryContainer)
+                                Text("该档案使用自定义样式，可打开原始页面查看完整排版", fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f))
                             }
                             Icon(AppIcons.NorthEast, null, Modifier.size(20.dp), tint = c.onPrimaryContainer)
                         }
@@ -272,13 +272,13 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                         }
                     }
                     if (blocks.isEmpty()) {
-                        Text("No content available.", fontSize = bodyPx.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 24.dp))
+                        Text("暂无档案正文。", fontSize = bodyPx.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 24.dp))
                     }
 
                     // related - only real crosslinks referenced within this article
                     val related = app.article?.crosslinks.orEmpty()
                     if (related.isNotEmpty()) {
-                        Text("Related", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface, modifier = Modifier.padding(top = 26.dp))
+                        Text("相关档案", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface, modifier = Modifier.padding(top = 26.dp))
                         Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             related.forEach { r -> RelatedRow(app, r) }
                         }
@@ -293,7 +293,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Icon(AppIcons.NorthEast, null, Modifier.size(20.dp), tint = c.primary)
-                        Text("Open original wiki page", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.primary, modifier = Modifier.weight(1f))
+                        Text("打开维基原文", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.primary, modifier = Modifier.weight(1f))
                     }
 
                     // Watch the narration on YouTube - credits the narrator at the point their
@@ -309,8 +309,8 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                         ) {
                             Icon(AppIcons.SmartDisplay, null, Modifier.size(20.dp), tint = c.primary)
                             Column(Modifier.weight(1f)) {
-                                Text("Watch narration on YouTube", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.primary)
-                                Text("Narration by SCP Archives", fontSize = 12.sp, color = c.onSurfaceVariant)
+                                Text("在 YouTube 观看朗读", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.primary)
+                                Text("朗读来源：SCP Archives", fontSize = 12.sp, color = c.onSurfaceVariant)
                             }
                         }
                     }
@@ -319,11 +319,11 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                     // since that's the point of use the license's attribution requirement is about.
                     Column(Modifier.padding(top = 20.dp, bottom = 4.dp)) {
                         val attrText = buildAnnotatedString {
-                            append("Article text and images are from the ")
+                            append("档案文本与图片来自 ")
                             withLink(LinkAnnotation.Clickable(tag = "wiki", styles = TextLinkStyles(SpanStyle(color = c.primary, textDecoration = TextDecoration.Underline))) { openUrl(ctx, item.url) }) {
-                                append("SCP Foundation wiki")
+                                append("SCP 基金会维基")
                             }
-                            append(", licensed under ")
+                            append("，采用 ")
                             withLink(LinkAnnotation.Clickable(tag = "cc", styles = TextLinkStyles(SpanStyle(color = c.primary, textDecoration = TextDecoration.Underline))) { openUrl(ctx, "https://creativecommons.org/licenses/by-sa/3.0/") }) {
                                 append("CC BY-SA 3.0")
                             }
@@ -371,7 +371,7 @@ private fun RatingBar(app: AppState, item: ScpItem) {
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Column(Modifier.weight(1f)) {
-            Text("RATING", fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp, color = c.onSurfaceVariant)
+            Text("评分", fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp, color = c.onSurfaceVariant)
             Text(if (score >= 0) "+$score" else "$score", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = c.onSurface)
         }
         if (pm) {
@@ -382,7 +382,7 @@ private fun RatingBar(app: AppState, item: ScpItem) {
                 Modifier.size(40.dp).clip(CircleShape).clickable(enabled = canClear) { app.onClearVote() },
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(AppIcons.Close, "Clear vote", Modifier.size(20.dp), tint = if (canClear) c.onSurfaceVariant else c.outlineVariant.copy(alpha = 0.5f))
+                Icon(AppIcons.Close, "撤销评分", Modifier.size(20.dp), tint = if (canClear) c.onSurfaceVariant else c.outlineVariant.copy(alpha = 0.5f))
             }
         }
     }
@@ -413,9 +413,9 @@ private fun VoteLoginPrompt(app: AppState) {
             Modifier.padding(28.dp).fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.surfaceCHigh).padding(22.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text("Log in to vote", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
+            Text("登录后评分", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
             Text(
-                "Voting uses your own Wikidot account. Log in, or create a free account on the wiki.",
+                "评分需要使用 Wikidot 账号。请登录或前往维基注册免费账号。",
                 fontSize = 14.sp, lineHeight = 20.sp, color = c.onSurfaceVariant, textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp),
             )
@@ -423,15 +423,15 @@ private fun VoteLoginPrompt(app: AppState) {
                 Modifier.padding(top = 18.dp).fillMaxWidth().height(46.dp).clip(RoundedCornerShape(13.dp))
                     .background(c.primary).clickable { app.dismissVoteLoginPrompt(); app.scrollSettingsToWikidot = true; app.go(com.foundation.scpreader.Screen.Settings) },
                 contentAlignment = Alignment.Center,
-            ) { Text("Log in", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary) }
+            ) { Text("登录", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary) }
             Box(
                 Modifier.padding(top = 10.dp).fillMaxWidth().height(46.dp).clip(RoundedCornerShape(13.dp))
                     .border(1.dp, c.outline, RoundedCornerShape(13.dp))
                     .clickable { openUrl(ctx, "https://www.wikidot.com/default--flow/login__CreateAccountScreen") },
                 contentAlignment = Alignment.Center,
-            ) { Text("Create an account", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface) }
+            ) { Text("注册账号", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface) }
             Box(Modifier.padding(top = 6.dp).clip(RoundedCornerShape(10.dp)).clickable { app.dismissVoteLoginPrompt() }.padding(horizontal = 16.dp, vertical = 10.dp)) {
-                Text("Not now", fontSize = 14.sp, color = c.onSurfaceVariant)
+                Text("暂不登录", fontSize = 14.sp, color = c.onSurfaceVariant)
             }
         }
     }
@@ -449,9 +449,9 @@ private fun VoteChangeDialog(app: AppState, current: Int?, target: Int) {
         Column(
             Modifier.padding(28.dp).fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(c.surfaceCHigh).padding(22.dp),
         ) {
-            Text("Change your vote?", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
+            Text("修改评分？", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
             Text(
-                "Change your ${fmt(current)} to ${fmt(target)} on this article?",
+                "要把这份档案的评分从 ${fmt(current)} 改为 ${fmt(target)} 吗？",
                 fontSize = 14.sp, lineHeight = 20.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp),
             )
             Row(Modifier.padding(top = 18.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -459,11 +459,11 @@ private fun VoteChangeDialog(app: AppState, current: Int?, target: Int) {
                     Modifier.weight(1f).height(46.dp).clip(RoundedCornerShape(13.dp)).border(1.dp, c.outline, RoundedCornerShape(13.dp))
                         .clickable { app.dismissVoteChange() },
                     contentAlignment = Alignment.Center,
-                ) { Text("Cancel", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface) }
+                ) { Text("取消", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface) }
                 Box(
                     Modifier.weight(1f).height(46.dp).clip(RoundedCornerShape(13.dp)).background(c.primary).clickable { app.confirmVoteChange() },
                     contentAlignment = Alignment.Center,
-                ) { Text("Change", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary) }
+                ) { Text("修改", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary) }
             }
         }
     }
@@ -505,7 +505,7 @@ private fun ImageLightbox(model: Any, caption: String, onDismiss: () -> Unit) {
                 .size(44.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.4f)).clickable { onDismiss() },
             contentAlignment = Alignment.Center,
         ) {
-            Icon(AppIcons.Close, "Close", Modifier.size(22.dp), tint = Color.White)
+            Icon(AppIcons.Close, "关闭", Modifier.size(22.dp), tint = Color.White)
         }
     }
 }
@@ -527,9 +527,9 @@ private fun FootnotePopup(text: String, onDismiss: () -> Unit) {
                 .verticalScroll(rememberScrollState()),
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("FOOTNOTE", fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp, color = c.primary, modifier = Modifier.weight(1f))
+                Text("脚注", fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp, color = c.primary, modifier = Modifier.weight(1f))
                 Box(Modifier.size(32.dp).clip(CircleShape).clickable { onDismiss() }, contentAlignment = Alignment.Center) {
-                    Icon(AppIcons.Close, "Close", Modifier.size(18.dp), tint = c.onSurfaceVariant)
+                    Icon(AppIcons.Close, "关闭", Modifier.size(18.dp), tint = c.onSurfaceVariant)
                 }
             }
             Text(text, fontSize = 15.sp, lineHeight = 22.sp, color = c.onSurface, modifier = Modifier.padding(top = 10.dp))
@@ -715,19 +715,19 @@ private fun AcsBar(acs: ContentBlock.Acs) {
     val c = LocalScpScheme.current
     // Secondary fields (below the containment header row) - the newer articles' disruption/risk band.
     val subFields = listOfNotNull(
-        acs.secondary?.let { "Secondary" to it },
-        acs.disruption?.let { "Disruption" to it },
-        acs.risk?.let { "Risk" to it },
+        acs.secondary?.let { "次要等级" to it },
+        acs.disruption?.let { "扰动等级" to it },
+        acs.risk?.let { "风险等级" to it },
     )
     if (acs.containment == null && subFields.isEmpty()) return
     Column(Modifier.padding(top = 20.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.surfaceContainer).padding(14.dp)) {
-        Text("ANOMALY CLASSIFICATION", fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp, color = c.primary)
+        Text("异常分类", fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp, color = c.primary)
         // Containment class as the banner header: the class gear badge next to its name.
         if (acs.containment != null) {
             Row(Modifier.padding(top = 12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 ClassBadgeIcon(acs.containment, size = 44)
                 Column {
-                    Text("CONTAINMENT CLASS", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = c.onSurfaceVariant)
+                    Text("收容等级", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = c.onSurfaceVariant)
                     Text(acs.containment.uppercase(), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.onSurface)
                 }
             }
@@ -819,33 +819,33 @@ private fun ReaderDownloadMenu(app: AppState, hasEpisode: Boolean, offlineLabel:
                 ReaderDlState.Done -> {
                     Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Icon(AppIcons.DownloadDone, null, Modifier.size(22.dp), tint = c.primary)
-                        Text("Saved offline · $offlineLabel", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
+                        Text("已离线保存 · $offlineLabel", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
                     }
                     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable { app.removeDownload() }.padding(horizontal = 14.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                         Icon(AppIcons.Delete, null, Modifier.size(22.dp), tint = c.onSurfaceVariant)
-                        Text("Remove download", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+                        Text("删除离线档案", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
                     }
                 }
                 ReaderDlState.Downloading -> {
                     Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         CircularProgressIndicator(progress = { app.readerDl.pct / 100f }, modifier = Modifier.size(20.dp), color = c.primary, trackColor = c.surfaceCHighest, strokeWidth = 2.dp)
-                        Text("Downloading · ${app.readerDl.pct}%", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
+                        Text("正在下载 · ${app.readerDl.pct}%", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
                     }
                 }
                 else -> {
                     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable { app.startDownload(false) }.padding(horizontal = 14.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                         Icon(AppIcons.Article, null, Modifier.size(22.dp), tint = c.onSurfaceVariant)
                         Column(Modifier.weight(1f)) {
-                            Text("Article only", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
-                            Text("Text · saved offline", fontSize = 12.sp, color = c.onSurfaceVariant)
+                            Text("仅下载档案", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface)
+                            Text("文本 · 已离线保存", fontSize = 12.sp, color = c.onSurfaceVariant)
                         }
                     }
                     if (hasEpisode) {
                         Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.secondaryContainer).clickable { app.startDownload(true) }.padding(horizontal = 14.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                             Icon(AppIcons.Headphones, null, Modifier.size(22.dp), tint = c.onSecondaryContainer)
                             Column(Modifier.weight(1f)) {
-                                Text("Article + narration", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onSecondaryContainer)
-                                Text("Text & audio", fontSize = 12.sp, color = c.onSecondaryContainer.copy(alpha = 0.8f))
+                                Text("档案及朗读", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onSecondaryContainer)
+                                Text("文本及音频", fontSize = 12.sp, color = c.onSecondaryContainer.copy(alpha = 0.8f))
                             }
                         }
                     }

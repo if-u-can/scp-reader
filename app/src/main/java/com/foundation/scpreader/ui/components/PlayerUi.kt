@@ -82,7 +82,7 @@ fun MiniPlayer(app: AppState) {
                     Text(
                         when {
                             notice != null -> notice
-                            state.buffering -> "Buffering…"
+                            state.buffering -> "正在缓冲…"
                             else -> "${fmt(state.positionMs)} / ${fmt(state.durationMs)}"
                         },
                         fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.8f), maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -111,8 +111,8 @@ private fun fmt(ms: Long): String {
 /** Human label for the audio source the current media resolved to (debug badge). */
 fun playbackOriginLabel(origin: PlaybackOrigin?, cleaned: Boolean = false): String? = when (origin) {
     PlaybackOrigin.YOUTUBE -> "YouTube"
-    PlaybackOrigin.PODCAST -> "Podcast"
-    PlaybackOrigin.LOCAL -> if (cleaned) "Downloaded · ad-free" else "Downloaded"
+    PlaybackOrigin.PODCAST -> "播客"
+    PlaybackOrigin.LOCAL -> if (cleaned) "已下载 · 无广告" else "已下载"
     null -> null
 }
 

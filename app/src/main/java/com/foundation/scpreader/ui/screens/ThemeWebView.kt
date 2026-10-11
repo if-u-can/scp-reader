@@ -111,14 +111,14 @@ fun ThemeWebView(app: AppState, item: ScpItem) {
         Box(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars))
         Row(Modifier.fillMaxWidth().height(56.dp).padding(start = 8.dp, end = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(44.dp).clip(CircleShape).clickable { app.closeArticleTheme() }, contentAlignment = Alignment.Center) {
-                Icon(AppIcons.ArrowBack, "Back", Modifier.size(24.dp), tint = c.onSurface)
+                Icon(AppIcons.ArrowBack, "返回", Modifier.size(24.dp), tint = c.onSurface)
             }
             Column(Modifier.weight(1f).padding(start = 4.dp)) {
                 Text(item.number, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface)
-                Text("Original theme", fontSize = 11.sp, color = c.onSurfaceVariant)
+                Text("原始排版", fontSize = 11.sp, color = c.onSurfaceVariant)
             }
             Box(Modifier.size(44.dp).clip(CircleShape).clickable { openUrl(ctx, url) }, contentAlignment = Alignment.Center) {
-                Icon(AppIcons.NorthEast, "Open in browser", Modifier.size(22.dp), tint = c.onSurface)
+                Icon(AppIcons.NorthEast, "用浏览器打开", Modifier.size(22.dp), tint = c.onSurface)
             }
         }
         // The WebView fills the rest and scrolls under the gesture/navigation bar (like a browser),

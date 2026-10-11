@@ -40,7 +40,7 @@ import com.foundation.scpreader.ui.components.AppIcons
 import com.foundation.scpreader.ui.theme.LocalScpScheme
 
 /**
- * Bottom sheet showing the current build's GitHub release description (the "What's new" notes).
+ * Bottom sheet showing the current build's GitHub release description (the "更新内容" notes).
  * The body is GitHub-flavoured Markdown; [ReleaseNotes] renders the small subset releases use
  * (headings, bold section labels, bullet lists) - enough to read cleanly without a full parser.
  */
@@ -62,11 +62,11 @@ fun WhatsNewSheet(app: AppState) {
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("WHAT'S NEW", fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp, color = c.primary)
-                    Text("Version ${BuildConfig.VERSION_NAME}", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp))
+                    Text("更新日志", fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp, color = c.primary)
+                    Text("版本 ${BuildConfig.VERSION_NAME}", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp))
                 }
                 Box(Modifier.size(32.dp).clip(CircleShape).clickable { onDismiss() }, contentAlignment = Alignment.Center) {
-                    Icon(AppIcons.Close, "Close", Modifier.size(18.dp), tint = c.onSurfaceVariant)
+                    Icon(AppIcons.Close, "关闭", Modifier.size(18.dp), tint = c.onSurfaceVariant)
                 }
             }
 
@@ -77,7 +77,7 @@ fun WhatsNewSheet(app: AppState) {
                             CircularProgressIndicator(Modifier.size(28.dp), color = c.primary, strokeWidth = 3.dp)
                         }
                     app.whatsNewNotes.isNullOrBlank() ->
-                        Text("Release notes couldn't be loaded. Check the release on GitHub for details.",
+                        Text("无法加载更新日志，请前往 GitHub 发行页面查看。",
                             fontSize = 14.sp, lineHeight = 20.sp, color = c.onSurfaceVariant)
                     else -> ReleaseNotes(app.whatsNewNotes!!)
                 }
@@ -88,7 +88,7 @@ fun WhatsNewSheet(app: AppState) {
                     .background(c.primary).clickable { onDismiss() },
                 contentAlignment = Alignment.Center,
             ) {
-                Text("Got it", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary)
+                Text("知道了", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.onPrimary)
             }
         }
     }

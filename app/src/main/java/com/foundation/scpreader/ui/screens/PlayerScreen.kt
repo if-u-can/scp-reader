@@ -76,10 +76,10 @@ fun PlayerScreen(app: AppState) {
                     Modifier.size(44.dp).clip(CircleShape).clickable { app.closePlayer() },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(AppIcons.KeyboardArrowDown, "Close player", Modifier.size(28.dp), tint = c.onSurface)
+                    Icon(AppIcons.KeyboardArrowDown, "关闭播放器", Modifier.size(28.dp), tint = c.onSurface)
                 }
                 Text(
-                    "NOW PLAYING", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.4.sp,
+                    "正在播放", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.4.sp,
                     color = c.onSurfaceVariant, textAlign = TextAlign.Center, modifier = Modifier.weight(1f),
                 )
                 Spacer(Modifier.size(44.dp))
@@ -151,7 +151,7 @@ fun PlayerScreen(app: AppState) {
             }
             Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(fmt(shownPositionMs), fontFamily = Mono, fontSize = 12.sp, color = c.onSurfaceVariant)
-                Text(if (state.buffering) "Buffering…" else fmt(state.durationMs), fontFamily = Mono, fontSize = 12.sp, color = c.onSurfaceVariant)
+                Text(if (state.buffering) "正在缓冲…" else fmt(state.durationMs), fontFamily = Mono, fontSize = 12.sp, color = c.onSurfaceVariant)
             }
 
             Spacer(Modifier.height(20.dp))
@@ -162,8 +162,8 @@ fun PlayerScreen(app: AppState) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                CtrlButton(AppIcons.SkipPrevious, "Previous", 30.dp) { app.playerPrevious() }
-                CtrlButton(AppIcons.FastRewind, "Back 15 seconds", 32.dp) { app.player.seekBy(-SKIP_MS) }
+                CtrlButton(AppIcons.SkipPrevious, "上一条", 30.dp) { app.playerPrevious() }
+                CtrlButton(AppIcons.FastRewind, "后退 15 秒", 32.dp) { app.player.seekBy(-SKIP_MS) }
 
                 // Big play/pause.
                 Box(
@@ -172,12 +172,12 @@ fun PlayerScreen(app: AppState) {
                 ) {
                     Icon(
                         if (state.isPlaying) AppIcons.Pause else AppIcons.PlayArrow,
-                        if (state.isPlaying) "Pause" else "Play", Modifier.size(40.dp), tint = c.onPrimary,
+                        if (state.isPlaying) "暂停" else "播放", Modifier.size(40.dp), tint = c.onPrimary,
                     )
                 }
 
-                CtrlButton(AppIcons.FastForward, "Forward 15 seconds", 32.dp) { app.player.seekBy(SKIP_MS) }
-                CtrlButton(AppIcons.SkipNext, "Next", 30.dp) { app.playerNext() }
+                CtrlButton(AppIcons.FastForward, "前进 15 秒", 32.dp) { app.player.seekBy(SKIP_MS) }
+                CtrlButton(AppIcons.SkipNext, "下一条", 30.dp) { app.playerNext() }
             }
 
             Spacer(Modifier.weight(1f))

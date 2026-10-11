@@ -44,8 +44,8 @@ import com.foundation.scpreader.ui.components.AppIcons
 import com.foundation.scpreader.ui.theme.LocalScpScheme
 import kotlin.math.roundToInt
 
-private val rTypeDefs = listOf(RandomType.Scp to "SCPs", RandomType.Tale to "Tales", RandomType.Goi to "GoI docs")
-private val rModeDefs = listOf(RandomMode.Pool to "Random", RandomMode.TopRated to "Top rated", RandomMode.Entire to "Entire", RandomMode.Series to "Series")
+private val rTypeDefs = listOf(RandomType.Scp to "SCP 项目", RandomType.Tale to "故事", RandomType.Goi to "相关组织档案")
+private val rModeDefs = listOf(RandomMode.Pool to "随机", RandomMode.TopRated to "评分最高", RandomMode.Entire to "全部", RandomMode.Series to "系列")
 private val popularPool = listOf("humanoid", "keter", "safe", "euclid", "building", "reptilian", "location", "alive", "mind-affecting", "autonomous")
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -53,35 +53,35 @@ private val popularPool = listOf("humanoid", "keter", "safe", "euclid", "buildin
 fun RandomSheet(app: AppState) {
     val c = LocalScpScheme.current
     val rTypeName = when (app.randomType) {
-        RandomType.Scp -> "SCP articles"; RandomType.Tale -> "tales"; RandomType.Goi -> "GoI documents"
+        RandomType.Scp -> "SCP 项目档案"; RandomType.Tale -> "故事"; RandomType.Goi -> "相关组织档案"
     }
     val unit = when (app.randomType) {
-        RandomType.Scp -> if (app.randomCount == 1) "SCP" else "SCPs"
-        RandomType.Tale -> if (app.randomCount == 1) "tale" else "tales"
-        RandomType.Goi -> "docs"
+        RandomType.Scp -> if (app.randomCount == 1) "SCP" else "SCP 项目"
+        RandomType.Tale -> if (app.randomCount == 1) "故事" else "故事"
+        RandomType.Goi -> "档案"
     }
     val tagInputRaw = app.randomTagInput.trim().lowercase()
     val sourcePool = if (tagInputRaw.isNotEmpty()) app.tagVocab.filter { it.contains(tagInputRaw) } else popularPool
     val suggestions = sourcePool.filter { !app.randomTags.contains(it) }.take(6)
-    val tagPart = if (app.randomTags.isNotEmpty()) " tagged " + app.randomTags.joinToString(", ") else " (any tag)"
+    val tagPart = if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.joinToString(", ") else "（不限标签）"
     val estMb = app.randomCount * (if (app.randomType == RandomType.Goi) 0.06 else 0.05)
     val summary = when (app.randomMode) {
-        com.foundation.scpreader.RandomMode.Pool ->
-            "Queue ${app.randomCount} random $rTypeName$tagPart for offline reading. Est. ${(estMb * 10).roundToInt() / 10.0} MB."
-        com.foundation.scpreader.RandomMode.TopRated ->
-            "Download the ${app.randomCount} highest-rated $rTypeName${if (app.randomTags.isNotEmpty()) " tagged " + app.randomTags.first() else ""} for offline reading."
-        com.foundation.scpreader.RandomMode.Entire ->
-            "Download the entire $rTypeName archive${if (app.randomTags.isNotEmpty()) " tagged " + app.randomTags.first() else ""} for offline reading. This can take a while and use significant storage."
-        com.foundation.scpreader.RandomMode.Series -> {
+        RandomMode.Pool ->
+            "将 ${app.randomCount} 篇随机$rTypeName$tagPart加入离线下载队列，预计占用 ${(estMb * 10).roundToInt() / 10.0} MB。"
+        RandomMode.TopRated ->
+            "下载评分最高的 ${app.randomCount} 篇$rTypeName${if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.first() else ""}，以供离线阅读。"
+        RandomMode.Entire ->
+            "下载整个$rTypeName档案库${if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.first() else ""}，可能需要较长时间并占用大量存储空间。"
+        RandomMode.Series -> {
             val lo = if (app.randomSeries == 1) 1 else (app.randomSeries - 1) * 1000
-            "Download every SCP in Series ${app.randomSeries} (SCP-${"%03d".format(lo)}–${app.randomSeries * 1000 - 1}) for offline reading."
+            "下载第 ${app.randomSeries} 系列的全部 SCP（SCP-${"%03d".format(lo)}–${app.randomSeries * 1000 - 1}），以供离线阅读。"
         }
     }
     val ctaLabel = when (app.randomMode) {
-        com.foundation.scpreader.RandomMode.Pool -> "Download ${app.randomCount} $unit"
-        com.foundation.scpreader.RandomMode.TopRated -> "Download top ${app.randomCount}"
-        com.foundation.scpreader.RandomMode.Entire -> "Download entire archive"
-        com.foundation.scpreader.RandomMode.Series -> "Download Series ${app.randomSeries}"
+        com.foundation.scpreader.RandomMode.Pool -> "下载 ${app.randomCount} 篇$unit"
+        com.foundation.scpreader.RandomMode.TopRated -> "下载评分最高的 ${app.randomCount} 篇"
+        com.foundation.scpreader.RandomMode.Entire -> "下载整个档案库"
+        com.foundation.scpreader.RandomMode.Series -> "下载第 ${app.randomSeries} 系列"
     }
 
     // scrim
@@ -96,13 +96,13 @@ fun RandomSheet(app: AppState) {
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Icon(AppIcons.Shuffle, null, Modifier.size(26.dp), tint = c.primary)
-                Text("Bulk download", fontSize = 22.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.weight(1f))
+                Text("批量下载", fontSize = 22.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.weight(1f))
                 Box(Modifier.size(40.dp).clip(CircleShape).background(c.surfaceCHigh).clickable { app.randomOpen = false }, contentAlignment = Alignment.Center) {
                     Icon(AppIcons.Close, null, Modifier.size(22.dp), tint = c.onSurface)
                 }
             }
 
-            SheetLabel("Mode")
+            SheetLabel("模式")
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 rModeDefs.forEach { (m, label) ->
                     val active = app.randomMode == m
@@ -119,7 +119,7 @@ fun RandomSheet(app: AppState) {
             }
 
             if (app.randomMode == RandomMode.Series) {
-                SheetLabel("Which series")
+                SheetLabel("选择系列")
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     (1..10).forEach { n ->
                         val active = app.randomSeries == n
@@ -154,8 +154,8 @@ fun RandomSheet(app: AppState) {
             }
 
             Row(Modifier.fillMaxWidth().padding(top = 22.dp, bottom = 10.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                Text("FILTER BY TAG", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp, color = c.onSurfaceVariant)
-                Text("optional", fontSize = 12.sp, color = c.onSurfaceVariant)
+                Text("按标签筛选", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp, color = c.onSurfaceVariant)
+                Text("选填", fontSize = 12.sp, color = c.onSurfaceVariant)
             }
             // tag input
             Row(
@@ -165,7 +165,7 @@ fun RandomSheet(app: AppState) {
             ) {
                 Icon(AppIcons.Sell, null, Modifier.size(20.dp), tint = c.onSurfaceVariant)
                 Box(Modifier.weight(1f)) {
-                    if (app.randomTagInput.isEmpty()) Text("Type any tag, e.g. humanoid", fontSize = 15.sp, color = c.onSurfaceVariant)
+                    if (app.randomTagInput.isEmpty()) Text("输入标签，例如 humanoid", fontSize = 15.sp, color = c.onSurfaceVariant)
                     BasicTextField(
                         value = app.randomTagInput,
                         onValueChange = { app.randomTagInput = it },
@@ -197,10 +197,10 @@ fun RandomSheet(app: AppState) {
                     }
                 }
             } else {
-                Text("No tag filter — you'll get any $rTypeName.", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 10.dp))
+                Text("不筛选标签，将随机获取$rTypeName。", fontSize = 13.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 10.dp))
             }
 
-            Text(if (tagInputRaw.isNotEmpty()) "Matching tags" else "Popular tags", fontSize = 12.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
+            Text(if (tagInputRaw.isNotEmpty()) "匹配标签" else "热门标签", fontSize = 12.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 suggestions.forEach { label ->
                     Row(
@@ -215,7 +215,7 @@ fun RandomSheet(app: AppState) {
             }
 
             if (app.randomMode != RandomMode.Entire) {
-                SheetLabel("How many")
+                SheetLabel("下载数量")
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 2.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.Bottom) {
                     Text("${app.randomCount}", fontSize = 64.sp, fontWeight = FontWeight.Light, color = c.primary)
                     Text(unit, fontSize = 16.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 6.dp, bottom = 10.dp))
