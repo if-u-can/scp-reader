@@ -229,8 +229,8 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                     }
 
                     Row(Modifier.padding(top = 16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        MetaCard(Modifier.weight(1f), "Type", item.typeLabel, c.onSurface)
-                        MetaCard(Modifier.weight(1f), "Offline", offlineLabel, offlineColor)
+                        MetaCard(Modifier.weight(1f), "类型", when (item.typeLabel) { "Tale" -> "故事"; "GoI" -> "相关组织"; else -> item.typeLabel }, c.onSurface)
+                        MetaCard(Modifier.weight(1f), "离线状态", offlineLabel, offlineColor)
                     }
 
                     RatingBar(app, item)

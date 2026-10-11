@@ -67,7 +67,7 @@ fun RandomSheet(app: AppState) {
     val estMb = app.randomCount * (if (app.randomType == RandomType.Goi) 0.06 else 0.05)
     val summary = when (app.randomMode) {
         RandomMode.Pool ->
-            "将 ${app.randomCount} 篇随机$rTypeName$tagPart加入离线下载队列，预计占用 ${(estMb * 10).roundToInt() / 10.0} MB。"
+            "从$rTypeName中随机选取 ${app.randomCount} 篇$tagPart，加入离线下载队列。预计占用 ${(estMb * 10).roundToInt() / 10.0} MB。"
         RandomMode.TopRated ->
             "下载评分最高的 ${app.randomCount} 篇$rTypeName${if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.first() else ""}，以供离线阅读。"
         RandomMode.Entire ->
@@ -78,7 +78,7 @@ fun RandomSheet(app: AppState) {
         }
     }
     val ctaLabel = when (app.randomMode) {
-        com.foundation.scpreader.RandomMode.Pool -> "下载 ${app.randomCount} 篇$unit"
+        com.foundation.scpreader.RandomMode.Pool -> "下载 ${app.randomCount} 份档案"
         com.foundation.scpreader.RandomMode.TopRated -> "下载评分最高的 ${app.randomCount} 篇"
         com.foundation.scpreader.RandomMode.Entire -> "下载整个档案库"
         com.foundation.scpreader.RandomMode.Series -> "下载第 ${app.randomSeries} 系列"
@@ -137,7 +137,7 @@ fun RandomSheet(app: AppState) {
             }
 
             if (app.randomMode != RandomMode.Series) {
-            SheetLabel("Type")
+            SheetLabel("类型")
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 rTypeDefs.forEach { (t, label) ->
                     val active = app.randomType == t

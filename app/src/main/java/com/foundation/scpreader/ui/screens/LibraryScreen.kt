@@ -107,7 +107,7 @@ fun LibraryScreen(app: AppState) {
         ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
-                    if (capacity > 0) formatGb(usedBytes) + " of " + formatGb(capacity) + " 已使用" else formatSize(downloadedBytes) + " 已使用",
+                    if (capacity > 0) formatGb(usedBytes) + " / " + formatGb(capacity) + " 已使用" else formatSize(downloadedBytes) + " 已使用",
                     fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.onSurface,
                 )
                 Text("${done.size} 份档案", fontSize = 14.sp, color = c.onSurfaceVariant)
