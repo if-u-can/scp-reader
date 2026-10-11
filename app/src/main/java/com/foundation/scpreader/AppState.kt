@@ -313,9 +313,9 @@ class AppState(
                         // Narrated pool is finite: stop paging once a fetch adds nothing new.
                         feedHasMore = !narratedOnly || items.isNotEmpty()
                         if (feedRaw.isEmpty() && narratedOnly)
-                            feedError = "No narrated entries yet — narration may still be syncing. Turn off the Narrated filter to browse everything."
+                            feedError = "暂时没有可朗读的档案，音频索引可能仍在同步。关闭「有朗读」筛选可浏览全部档案。"
                     }
-                    .onFailure { feedError = it.message ?: "Couldn't load random entries" }
+                    .onFailure { feedError = it.message ?: "随机档案加载失败" }
             } else {
                 runCatching { repo.topRated(tag = feedTagFor(typeFilter), after = feedCursor) }
                     .onSuccess { page ->
@@ -324,7 +324,7 @@ class AppState(
                         feedHasMore = page.hasNext
                         feed = repo.decorate(feedRaw)
                     }
-                    .onFailure { feedError = it.message ?: "Couldn't load the archive" }
+                    .onFailure { feedError = it.message ?: "基金会档案加载失败" }
             }
             feedLoading = false
             heroRefreshing = false
@@ -555,9 +555,9 @@ class AppState(
         when (result) {
             is com.foundation.scpreader.network.WikidotVoteApi.RateResult.Ok -> result.points?.let { readerScoreOverride = it }
             is com.foundation.scpreader.network.WikidotVoteApi.RateResult.NeedLogin -> {
-                wikidotSession = ""; voteLoginPromptOpen = true; notice("Please log in again")
+                wikidotSession = ""; voteLoginPromptOpen = true; notice("请重新登录")
             }
-            is com.foundation.scpreader.network.WikidotVoteApi.RateResult.AlreadyVoted -> notice("You've already rated this")
+            is com.foundation.scpreader.network.WikidotVoteApi.RateResult.AlreadyVoted -> notice("你已经给这份档案评过分")
             is com.foundation.scpreader.network.WikidotVoteApi.RateResult.Error -> notice(result.message)
         }
     }
@@ -565,12 +565,12 @@ class AppState(
     fun dismissVoteLoginPrompt() { voteLoginPromptOpen = false }
 
     fun wikidotLogin(user: String, password: String) {
-        if (user.isBlank() || password.isBlank()) { wikidotLoginError = "Enter your username and password"; return }
+        if (user.isBlank() || password.isBlank()) { wikidotLoginError = "请输入用户名和密码"; return }
         wikidotLoggingIn = true; wikidotLoginError = null
         viewModelScope.launch {
             repo.wikidotLogin(user.trim(), password).fold(
                 onSuccess = { session -> wikidotSession = session; wikidotUser = user.trim(); voteLoginPromptOpen = false },
-                onFailure = { wikidotLoginError = it.message ?: "Login failed" },
+                onFailure = { wikidotLoginError = it.message ?: "登录失败" },
             )
             wikidotLoggingIn = false
         }
@@ -660,7 +660,7 @@ class AppState(
         if (player.state.value.episode?.mediaId == episode.mediaId) { player.togglePlayPause(); return }
         viewModelScope.launch {
             val playable = repo.resolvePlayable(episode)
-            if (playable == null) { notice("Narration unavailable"); return@launch }
+            if (playable == null) { notice("暂无朗读音频"); return@launch }
             playable.fallbackReason?.let { notice(it) }
             val resolved = playable.episode
             val pos = repo.resumePosition(resolved.mediaId)
@@ -681,7 +681,7 @@ class AppState(
         viewModelScope.launch {
             episode.videoId?.let { repo.invalidateStream(it) }
             val playable = repo.resolvePlayable(episode)
-            if (playable == null) { notice("Playback failed"); return@launch }
+            if (playable == null) { notice("播放失败"); return@launch }
             playable.fallbackReason?.let { notice(it) }
             val resolved = playable.episode
             player.play(resolved, playable.uri, positionMs, playable.origin, playable.cleaned, forceReload = true)
@@ -758,7 +758,7 @@ class AppState(
                 }
             }.fold(
                 onSuccess = { UpdateDownloadState.ReadyToInstall(dest) },
-                onFailure = { UpdateDownloadState.Failed(it.message ?: "Download failed") },
+                onFailure = { UpdateDownloadState.Failed(it.message ?: "下载失败") },
             )
         }
     }
@@ -801,26 +801,26 @@ class AppState(
                 recommendations = recsDef.await()
                 // Opening the Friends tab counts as seeing them - stop the poller re-notifying.
                 recommendations.maxOfOrNull { it.id }?.let { friends.setLastSeenRecId(it.toLong()) }
-            }.onFailure { friendsError = it.message ?: "Couldn't reach the server" }
+            }.onFailure { friendsError = it.message ?: "无法连接服务器" }
             friendsLoading = false
         }
     }
 
     fun addFriend() {
         val code = addFriendInput.trim()
-        if (code.length != 6) { postFriendsNotice("Enter a 6-character code"); return }
+        if (code.length != 6) { postFriendsNotice("请输入六位好友代码"); return }
         viewModelScope.launch {
             runCatching { friends.addFriend(code) }
                 .onSuccess { added ->
                     addFriendInput = ""
-                    postFriendsNotice("Added ${added.name.ifBlank { added.friend_code }}")
+                    postFriendsNotice("已添加 ${added.name.ifBlank { added.friend_code }}")
                     // add_friend.php returns the new friend, so append locally instead of a second
                     // round-trip to re-fetch the whole list (dedup in case they were already added).
                     if (friendsList.none { it.friend_code == added.friend_code }) {
                         friendsList = (friendsList + added).sortedBy { it.name.ifBlank { it.friend_code } }
                     }
                 }
-                .onFailure { postFriendsNotice(it.message ?: "Couldn't add friend") }
+                .onFailure { postFriendsNotice(it.message ?: "添加好友失败") }
         }
     }
 
@@ -836,9 +836,9 @@ class AppState(
                     friendsList = friendsList.filterNot { it.friend_code == code }
                     // Their recommendations are deleted server-side too - drop them locally to match.
                     recommendations = recommendations.filterNot { it.from_code == code }
-                    postFriendsNotice("Removed")
+                    postFriendsNotice("已移除")
                 }
-                .onFailure { postFriendsNotice(it.message ?: "Couldn't remove friend") }
+                .onFailure { postFriendsNotice(it.message ?: "移除好友失败") }
         }
     }
 
@@ -856,7 +856,7 @@ class AppState(
         )
     }
 
-    // Reader → "Recommend to friend" flow.
+    // Reader → "推荐给好友" flow.
     fun openRecommendSheet() {
         recommendNote = ""; recommendSheetOpen = true; readerMenuOpen = false
         if (friendsList.isEmpty()) loadFriends()
@@ -869,8 +869,8 @@ class AppState(
         recommendSheetOpen = false
         viewModelScope.launch {
             runCatching { friends.recommend(friendCode, item, note) }
-                .onSuccess { postFriendsNotice("Recommendation sent") }
-                .onFailure { postFriendsNotice(it.message ?: "Couldn't send") }
+                .onSuccess { postFriendsNotice("推荐已发送") }
+                .onFailure { postFriendsNotice(it.message ?: "发送失败") }
         }
     }
 

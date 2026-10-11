@@ -105,7 +105,7 @@ data class Article(
     val crosslinks: List<ScpItem> = emptyList(),
     /**
      * True when the source page ships a custom visual theme (bespoke CSS/fonts/backgrounds) that the
-     * native block renderer can't reproduce - gates the reader's "View original theme" web action.
+     * native block renderer can't reproduce - gates the reader's "查看原始排版" web action.
      */
     val hasCustomTheme: Boolean = false,
     /** Wikidot numeric page id, needed to cast a rating; null when unknown (offline/older rows). */

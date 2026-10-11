@@ -24,8 +24,8 @@ object RecommendationNotifier {
         val nm = context.getSystemService(NotificationManager::class.java)
         if (nm.getNotificationChannel(CHANNEL_ID) == null) {
             nm.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "Friend recommendations", NotificationManager.IMPORTANCE_DEFAULT).apply {
-                    description = "Notifies you when a friend recommends an SCP"
+                NotificationChannel(CHANNEL_ID, "好友档案推荐", NotificationManager.IMPORTANCE_DEFAULT).apply {
+                    description = "好友向你推荐异常项目时提醒"
                 }
             )
         }
@@ -42,15 +42,15 @@ object RecommendationNotifier {
 
         val newest = fresh.first()
         val title = if (fresh.size == 1) {
-            "${newest.from_name.ifBlank { newest.from_code }} recommended an SCP"
+            "${newest.from_name.ifBlank { newest.from_code }} 推荐了一个异常项目"
         } else {
-            "${fresh.size} new SCP recommendations"
+            "收到 ${fresh.size} 条新的 SCP 档案推荐"
         }
         val text = if (fresh.size == 1) {
             (newest.scp_title.ifBlank { newest.scp_number }) +
                 if (newest.note.isNotBlank()) " — “${newest.note}”" else ""
         } else {
-            "From " + fresh.map { it.from_name.ifBlank { it.from_code } }.distinct().take(3).joinToString(", ")
+            "来自 " + fresh.map { it.from_name.ifBlank { it.from_code } }.distinct().take(3).joinToString(", ")
         }
 
         val intent = Intent(context, MainActivity::class.java).apply {

@@ -437,7 +437,7 @@ fun SettingsScreen(app: AppState) {
                 openUrl(ctx, "https://www.youtube.com/@SCParchives")
             }
             Divider1()
-            LinkRow(AppIcons.Headphones, "播客来源", "SCP Archives · open in Apple Podcasts") {
+            LinkRow(AppIcons.Headphones, "播客来源", "SCP Archives · 在 Apple Podcasts 打开") {
                 openUrl(ctx, "https://podcasts.apple.com/podcast/id1453436915")
             }
             Divider1()

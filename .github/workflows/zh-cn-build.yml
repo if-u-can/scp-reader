@@ -5,6 +5,10 @@ on:
     branches: [zh-CN]
   workflow_dispatch:
 
+concurrency:
+  group: zh-cn-apk-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

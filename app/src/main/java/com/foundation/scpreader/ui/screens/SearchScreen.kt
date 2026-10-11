@@ -136,7 +136,7 @@ fun SearchScreen(app: AppState) {
             ) {
                 val n = results.size
                 Text(
-                    "$n RESULT${if (n == 1) "" else "S"}",
+                    "共 $n 条结果",
                     fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp, color = c.onSurfaceVariant,
                 )
                 SortSelector(app)

@@ -11,25 +11,25 @@ package com.foundation.scpreader.data
  * us map any article to its counterpart in another branch.
  */
 enum class Branch(val code: String, val displayName: String, val host: String) {
-    EN("en", "English (Main)", "http://scp-wiki.wikidot.com"),
-    RU("ru", "Russian · SCP-RU", "http://scp-ru.wikidot.com"),
-    KO("ko", "Korean · SCP-KO", "http://scpko.wikidot.com"),
-    CN("cn", "Chinese · SCP-CN", "http://scp-wiki-cn.wikidot.com"),
-    FR("fr", "French · SCP-FR", "http://fondationscp.wikidot.com"),
-    PL("pl", "Polish · SCP-PL", "http://scp-pl.wikidot.com"),
-    ES("es", "Spanish · SCP-ES", "http://lafundacionscp.wikidot.com"),
-    TH("th", "Thai · SCP-TH", "http://scp-th.wikidot.com"),
-    JP("jp", "Japanese · SCP-JP", "http://scp-jp.wikidot.com"),
-    DE("de", "German · SCP-DE", "http://scp-wiki-de.wikidot.com"),
-    IT("it", "Italian · SCP-IT", "http://fondazionescp.wikidot.com"),
-    UA("ua", "Ukrainian · SCP-UA", "http://scp-ukrainian.wikidot.com"),
-    PTBR("pt-br", "Portuguese · SCP-PT/BR", "http://scp-pt-br.wikidot.com"),
-    CS("cs", "Czech/Slovak · SCP-CS", "http://scp-cs.wikidot.com"),
-    ZHTR("zh-tr", "Trad. Chinese · SCP-ZH-TR", "http://scp-zh-tr.wikidot.com"),
-    VN("vn", "Vietnamese · SCP-VN", "http://scp-vn.wikidot.com"),
-    EL("el", "Greek · SCP-EL", "http://scp-el.wikidot.com"),
-    ID("id", "Indonesian · SCP-ID", "http://scp-id.wikidot.com"),
-    INT("int", "International · SCP-INT", "http://scp-int.wikidot.com");
+    EN("en", "英语（主站）", "http://scp-wiki.wikidot.com"),
+    RU("ru", "俄语 · SCP-RU", "http://scp-ru.wikidot.com"),
+    KO("ko", "韩语 · SCP-KO", "http://scpko.wikidot.com"),
+    CN("cn", "简体中文 · SCP-CN", "http://scp-wiki-cn.wikidot.com"),
+    FR("fr", "法语 · SCP-FR", "http://fondationscp.wikidot.com"),
+    PL("pl", "波兰语 · SCP-PL", "http://scp-pl.wikidot.com"),
+    ES("es", "西班牙语 · SCP-ES", "http://lafundacionscp.wikidot.com"),
+    TH("th", "泰语 · SCP-TH", "http://scp-th.wikidot.com"),
+    JP("jp", "日语 · SCP-JP", "http://scp-jp.wikidot.com"),
+    DE("de", "德语 · SCP-DE", "http://scp-wiki-de.wikidot.com"),
+    IT("it", "意大利语 · SCP-IT", "http://fondazionescp.wikidot.com"),
+    UA("ua", "乌克兰语 · SCP-UA", "http://scp-ukrainian.wikidot.com"),
+    PTBR("pt-br", "葡萄牙语 · SCP-PT/BR", "http://scp-pt-br.wikidot.com"),
+    CS("cs", "捷克语/斯洛伐克语 · SCP-CS", "http://scp-cs.wikidot.com"),
+    ZHTR("zh-tr", "繁体中文 · SCP-ZH-TR", "http://scp-zh-tr.wikidot.com"),
+    VN("vn", "越南语 · SCP-VN", "http://scp-vn.wikidot.com"),
+    EL("el", "希腊语 · SCP-EL", "http://scp-el.wikidot.com"),
+    ID("id", "印尼语 · SCP-ID", "http://scp-id.wikidot.com"),
+    INT("int", "国际分部 · SCP-INT", "http://scp-int.wikidot.com");
 
     /** Host without the URL scheme, for matching against a page URL regardless of http/https. */
     val hostKey: String get() = host.substringAfter("://")
@@ -45,6 +45,6 @@ enum class Branch(val code: String, val displayName: String, val host: String) {
 
         /** Resolve a set of persisted branch [codes] to branches, always non-empty (falls back to EN). */
         fun fromCodes(codes: Set<String>): List<Branch> =
-            codes.mapNotNull { byCode(it) }.ifEmpty { listOf(EN) }
+            codes.mapNotNull { byCode(it) }.ifEmpty { listOf(CN) }
     }
 }

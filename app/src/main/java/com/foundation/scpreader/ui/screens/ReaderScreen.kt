@@ -344,7 +344,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                         .clickable { scope.launch { scrollState.animateScrollTo(0) } },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(AppIcons.KeyboardArrowUp, "Scroll to top", Modifier.size(28.dp), tint = c.onPrimary)
+                    Icon(AppIcons.KeyboardArrowUp, "回到顶部", Modifier.size(28.dp), tint = c.onPrimary)
                 }
             }
         }
@@ -770,7 +770,7 @@ internal fun openUrl(context: android.content.Context, url: String) {
 private fun fmtDuration(sec: Int): String {
     if (sec <= 0) return "audio"
     val m = sec / 60
-    return if (m >= 1) "$m min" else "$sec s"
+    return if (m >= 1) "$m 分钟" else "$sec 秒"
 }
 
 @Composable
