@@ -67,11 +67,11 @@ fun RandomSheet(app: AppState) {
     val estMb = app.randomCount * (if (app.randomType == RandomType.Goi) 0.06 else 0.05)
     val summary = when (app.randomMode) {
         RandomMode.Pool ->
-            "从$rTypeName中随机选取 ${app.randomCount} 篇$tagPart，加入离线下载队列。预计占用 ${(estMb * 10).roundToInt() / 10.0} MB。"
+            "从${rTypeName}中随机选取 ${app.randomCount} 篇$tagPart，加入离线下载队列。预计占用 ${(estMb * 10).roundToInt() / 10.0} MB。"
         RandomMode.TopRated ->
             "下载评分最高的 ${app.randomCount} 篇$rTypeName${if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.first() else ""}，以供离线阅读。"
         RandomMode.Entire ->
-            "下载整个$rTypeName档案库${if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.first() else ""}，可能需要较长时间并占用大量存储空间。"
+            "下载整个${rTypeName}档案库${if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.first() else ""}，可能需要较长时间并占用大量存储空间。"
         RandomMode.Series -> {
             val lo = if (app.randomSeries == 1) 1 else (app.randomSeries - 1) * 1000
             "下载第 ${app.randomSeries} 系列的全部 SCP（SCP-${"%03d".format(lo)}–${app.randomSeries * 1000 - 1}），以供离线阅读。"
