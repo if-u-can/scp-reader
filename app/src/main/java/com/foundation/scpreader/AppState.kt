@@ -959,7 +959,7 @@ class AppState(
     fun selectRandomType(t: RandomType) { randomType = t }
     fun selectRandomMode(m: RandomMode) { randomMode = m }
     fun addRandomTag(raw: String) {
-        val t = raw.trim().lowercase()
+        val t = com.foundation.scpreader.data.UiTags.key(raw.trim().lowercase())
         randomTagInput = ""
         if (t.isEmpty() || randomTags.contains(t)) return
         randomTags = randomTags + t

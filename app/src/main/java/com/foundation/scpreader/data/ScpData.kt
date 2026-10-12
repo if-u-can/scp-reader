@@ -173,6 +173,8 @@ object UiTags {
         "structure" to "构造物", "religious" to "宗教",
     )
     fun name(tag: String): String = labels[tag] ?: tag
+    fun key(labelOrTag: String): String =
+        labels.entries.firstOrNull { it.value == labelOrTag }?.key ?: labelOrTag
 }
 
 /** Object-class + type derivation from a page's wikidot tags. */

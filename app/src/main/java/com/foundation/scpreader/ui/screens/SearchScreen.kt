@@ -253,7 +253,7 @@ private fun FilterSheet(app: AppState) {
             ) {
                 Icon(AppIcons.Sell, null, Modifier.size(19.dp), tint = c.onSurfaceVariant)
                 Box(Modifier.weight(1f)) {
-                    if (tagQuery.isEmpty()) Text("筛选标签，例如 humanoid", fontSize = 15.sp, color = c.onSurfaceVariant)
+                    if (tagQuery.isEmpty()) Text("筛选标签，例如 人形", fontSize = 15.sp, color = c.onSurfaceVariant)
                     BasicTextField(
                         value = tagQuery,
                         onValueChange = { tagQuery = it },
@@ -269,7 +269,7 @@ private fun FilterSheet(app: AppState) {
             }
             Box(Modifier.height(14.dp))
             val q = tagQuery.trim().lowercase()
-            val matches = if (q.isEmpty()) tagDefs else app.tagVocab.filter { it.contains(q) }.take(30)
+            val matches = if (q.isEmpty()) tagDefs else app.tagVocab.filter { it.contains(q) || com.foundation.scpreader.data.UiTags.name(it).contains(q) }.take(30)
             // Active tags stay visible (and removable) even when they don't match the filter text.
             val shownTags = (app.activeTags + matches).distinct()
             FilterFlow {
@@ -277,7 +277,7 @@ private fun FilterSheet(app: AppState) {
                 shownTags.forEach { label ->
                     val active = app.activeTags.contains(label)
                     val st = c.chipStyle(active)
-                    FilterChip(label, active, st.bg, st.fg, st.border) { app.toggleTag(label) }
+                    FilterChip(com.foundation.scpreader.data.UiTags.name(label), active, st.bg, st.fg, st.border) { app.toggleTag(label) }
                 }
             }
 

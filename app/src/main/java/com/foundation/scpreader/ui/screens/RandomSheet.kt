@@ -61,15 +61,15 @@ fun RandomSheet(app: AppState) {
         RandomType.Goi -> "档案"
     }
     val tagInputRaw = app.randomTagInput.trim().lowercase()
-    val sourcePool = if (tagInputRaw.isNotEmpty()) app.tagVocab.filter { it.contains(tagInputRaw) } else popularPool
+    val sourcePool = if (tagInputRaw.isNotEmpty()) app.tagVocab.filter { it.contains(tagInputRaw) || com.foundation.scpreader.data.UiTags.name(it).contains(tagInputRaw) } else popularPool
     val suggestions = sourcePool.filter { !app.randomTags.contains(it) }.take(6)
-    val tagPart = if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.joinToString(", ") else "（不限标签）"
+    val tagPart = if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.joinToString("、") { com.foundation.scpreader.data.UiTags.name(it) } else "（不限标签）"
     val estMb = app.randomCount * (if (app.randomType == RandomType.Goi) 0.06 else 0.05)
     val summary = when (app.randomMode) {
         RandomMode.Pool ->
             "从${rTypeName}中随机选取 ${app.randomCount} 篇$tagPart，加入离线下载队列。预计占用 ${(estMb * 10).roundToInt() / 10.0} MB。"
         RandomMode.TopRated ->
-            "下载评分最高的 ${app.randomCount} 篇$rTypeName${if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.first() else ""}，以供离线阅读。"
+            "下载评分最高的 ${app.randomCount} 篇$rTypeName${if (app.randomTags.isNotEmpty()) "，标签：" + com.foundation.scpreader.data.UiTags.name(app.randomTags.first()) else ""}，以供离线阅读。"
         RandomMode.Entire ->
             "下载整个${rTypeName}档案库${if (app.randomTags.isNotEmpty()) "，标签：" + app.randomTags.first() else ""}，可能需要较长时间并占用大量存储空间。"
         RandomMode.Series -> {
@@ -165,7 +165,7 @@ fun RandomSheet(app: AppState) {
             ) {
                 Icon(AppIcons.Sell, null, Modifier.size(20.dp), tint = c.onSurfaceVariant)
                 Box(Modifier.weight(1f)) {
-                    if (app.randomTagInput.isEmpty()) Text("输入标签，例如 humanoid", fontSize = 15.sp, color = c.onSurfaceVariant)
+                    if (app.randomTagInput.isEmpty()) Text("输入标签，例如 人形", fontSize = 15.sp, color = c.onSurfaceVariant)
                     BasicTextField(
                         value = app.randomTagInput,
                         onValueChange = { app.randomTagInput = it },
@@ -189,7 +189,7 @@ fun RandomSheet(app: AppState) {
                             Modifier.height(36.dp).clip(RoundedCornerShape(10.dp)).background(c.secondaryContainer).padding(start = 14.dp, end = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(tok, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.onSecondaryContainer)
+                            Text(com.foundation.scpreader.data.UiTags.name(tok), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.onSecondaryContainer)
                             Box(Modifier.size(26.dp).clip(CircleShape).clickable { app.removeRandomTag(tok) }, contentAlignment = Alignment.Center) {
                                 Icon(AppIcons.Close, null, Modifier.size(17.dp), tint = c.onSecondaryContainer)
                             }
@@ -209,7 +209,7 @@ fun RandomSheet(app: AppState) {
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp),
                     ) {
                         Icon(AppIcons.Add, null, Modifier.size(15.dp), tint = c.onSurfaceVariant)
-                        Text(label, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = c.onSurfaceVariant)
+                        Text(com.foundation.scpreader.data.UiTags.name(label), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = c.onSurfaceVariant)
                     }
                 }
             }
