@@ -1,42 +1,49 @@
-# SCP Reader
+# SCP Reader · 简体中文汉化版
 
-An Android app for reading the SCP Foundation wiki. Browse and search the archive,
-save articles to read offline, and play the narration when it's available.
+**非官方汉化项目** · 基于 [ThePixelPro366/scp-reader](https://github.com/ThePixelPro366/scp-reader) 修改。
 
-## Attribution
+> **控制，收容，保护。** 本项目为社区自行维护的阅读器汉化版本，既非 SCP 基金会官方应用，也不代表原项目作者立场。
 
-- Article text and images are from the [SCP Foundation wiki](https://scp-wiki.wikidot.com), licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). The app links back to each article's original wiki page and repeats this attribution in the reader itself.
-- The SCP emblem is from [Wikimedia](https://commons.wikimedia.org/), also CC BY-SA 3.0.
-- Narration audio is produced by [SCP Archives](https://www.youtube.com/@SCParchives) and sourced from their YouTube videos (with their Apple Podcasts feed as a fallback). The reader links to the specific YouTube video for any article with narration, with credit shown alongside it.
+## 获取 APK
 
-## Screenshots
+- [公开发行页面（Releases）](https://github.com/if-u-can/scp-reader/releases)：面向普通用户的安装包。
+- [zh-CN 分支](https://github.com/if-u-can/scp-reader/tree/zh-CN)：汉化源代码。
+- [自动构建](https://github.com/if-u-can/scp-reader/actions/workflows/zh-cn-build.yml)：开发测试用 APK。
 
-<img src="screenshots/gallery.png" width="760" alt="Home, Search, Library, Downloads, Settings, Reader and full-screen player screenshots" />
+**首次公开发布为预览版**，采用临时调试密钥签名的 Release 构建；可直接安装，但将来启用固定正式签名后，可能需要卸载旧预览版再安装正式版。请事先保存重要的离线数据。
 
-## Features
+## 汉化内容
 
-- Browse the archive with an SCP of the Day highlight and random-entry discovery, filtered by SCP, Tales, GoI or series
-- Read across 19 SCP branches beyond the English wiki, with a prompt to open an article's translation in another branch
-- Full-text search across SCPs, tales and GoI documents, with a Top Rated / Recently Viewed zero-state before you type
-- Rich reader: rendered collapsibles, tabs, tables, interactive footnotes, redactions, the ACS bar and object-class badges; in-app wiki links; selectable text; and tap an image to view it full-screen and zoom
-- Vote on articles - upvote, downvote or clear your vote - with your own Wikidot account
-- For articles with bespoke wiki styling, open a "View original theme" web view of the fully-styled page
-- Play YouTube-sourced narration in a full-screen player or the system media notification, with SponsorBlock segments (sponsor, intro, outro, filler and more) skipped automatically
-- Save articles (with offline images) and ad-free, SponsorBlock-trimmed narration for offline reading and playback, with a storage breakdown and a browse-by-class filter in your library
-- Queue and manage downloads - including bulk download of random, top-rated, a series or the entire archive
-- Recommend articles to friends and open the recommendations they send you
-- Bookmarks and a recently-viewed list
-- Adjustable text size, light/dark/auto themes, an AMOLED black theme, and dynamic color from your wallpaper
-- Tune discovery: choose the home highlight and exclude object classes from random picks
-- Resumes where you left off, and shows a What's New summary after each update
-- Checks for new releases and installs updates in-app
+- 保留 Material 3 设计，界面固定使用简体中文，无 UI 语言切换。
+- 基于 SCP 基金会用语汉化阅读器、收藏、下载、播放器、设置及通知。
+- 文档分部保留原版多选功能；只选 SCP-CN 时，普通浏览、搜索、故事、相关组织与系列从中文分部读取。
+- 搜索页的评分总榜和热门推荐：以英语主站评分排名，在已选分部中展示有对应译文的档案；不存在的译文不凭空编造，也不会自动混入未选择的分部。
+- 保留原版离线阅读、音频、字体与主题、批量下载等功能。
 
-## Building
+## 安装说明
 
-You need the Android SDK and JDK 17.
+从 Releases 下载 `*.apk` 并在 Android 手机上安装。Android 最低版本为 7.0（API 24）。
 
-```
+开发构建包名为 `com.foundation.scpreader.zh.debug`，发行构建包名为 `com.foundation.scpreader.zh`，两者可以并存。**不要把测试版的临时签名视作正式升级签名。**
+
+## 声明与署名
+
+- 原应用：[ThePixelPro366/scp-reader](https://github.com/ThePixelPro366/scp-reader)。感谢原作者的开发工作。
+- 汉化源代码采用与原项目一致的 [GPL-3.0](LICENSE) 授权；公开修改源码见本分支。
+- SCP 维基文章及适用图片依据 [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) 授权，并保留页面源站入口。文章作者及具体署名详见对应 SCP 维基页面。
+- SCP 徽标来自 [Wikimedia Commons](https://commons.wikimedia.org/)，遵循适用的 CC BY-SA 3.0 要求。
+- 朗读音频来源于 [SCP Archives](https://www.youtube.com/@SCParchives) 的 YouTube 或播客内容，应用会标注来源；这些音频不因本项目开源而自动获得重新分发授权。
+
+本项目为独立社区汉化版本，不隶属于原应用作者或 SCP 基金会。
+
+## 开发
+
+需要 Android SDK 与 JDK 17：
+
+```bash
 ./gradlew assembleDebug
 ```
 
-The APK ends up in `app/build/outputs/apk/debug/`.
+输出位置：`app/build/outputs/apk/debug/`。
+
+> 发行前的稳定签名配置说明见 [SIGNING.md](SIGNING.md)。严禁将私钥或密钥口令提交到公开仓库。
