@@ -102,8 +102,9 @@ jobs:
           test -n "$apk"
           apksigner="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
           test -n "$apksigner"
-          "$apksigner" verify --verbose "$apk"
-          "$apksigner" verify --print-certs "$apk" | grep -E 'Signer #1 certificate SHA-256 digest'
+          # A successful apksigner exit status is authoritative; don't make this
+          # depend on a specific certificate-output label or text format.
+          "$apksigner" verify --verbose --print-certs "$apk"
           cp "$apk" "dist/scp-reader-v${{ steps.version.outputs.version }}.apk"
           (cd dist && sha256sum *.apk > SHA256SUMS.txt)
 
