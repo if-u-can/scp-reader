@@ -1,0 +1,43 @@
+name: Check upstream SCP Reader versions
+
+on:
+  schedule:
+    - cron: "22 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check new upstream release and open a tracking issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: if-u-can/scp-reader
+        shell: bash
+        run: |
+          set -euo pipefail
+          latest="$(gh api repos/ThePixelPro366/scp-reader/releases/latest --jq .tag_name)"
+          baseline="$(cat .github/UPSTREAM_BASE_VERSION)"
+          if [[ -z "$latest" || "$latest" == "$baseline" ]]; then exit 0; fi
+          issue_title="[上游更新] SCP Reader $latest"
+          existing="$(gh issue list --state all --limit 200 --json title --jq '.[].title' || true)"
+          if printf '%s\n' "$existing" | grep -Fxq "$issue_title"; then
+            echo "Already tracked: $latest"
+            exit 0
+          fi
+          body="$(mktemp)"
+          {
+            echo "上游项目发布了新版本：**$latest**。"
+            echo
+            echo "- 上游最新版本：https://github.com/ThePixelPro366/scp-reader/releases/latest"
+            echo "- 汉化版分支：https://github.com/if-u-can/scp-reader/tree/zh-CN"
+            echo "- 现有汉化所基于的上游版本：$baseline"
+            echo
+            echo "请检查上游改动，安全合并进 zh-CN，补充汉化、运行构建与实际测试，再使用同一正式签名密钥发布新版。"
+            echo "不要直接自动合并，以免覆盖汉化和原版差异。"
+          } > "$body"
+          gh issue create --title "$issue_title" --body-file "$body"

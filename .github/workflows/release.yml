@@ -1,108 +1,127 @@
-name: Build Release APK
+name: Publish signed Chinese release
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        # GitHub can't pre-fill this field with the latest release (workflow_dispatch defaults are
-        # static YAML), so leaving it blank auto-increments the patch instead - see "Resolve version".
-        description: "Release version - blank = auto-bump patch from the latest release (0.2.0 -> 0.2.1). Type an explicit version to override, e.g. 0.3.0."
-        required: false
-        default: ""
+        description: "Version like 1.4.1-zh.2 (never reuse an existing release tag)"
+        required: true
+        default: "1.4.1-zh.2"
+        type: string
+  push:
+    branches: [zh-CN]
+    paths:
+      - ".release/TRIGGER_SIGNED_RELEASE.txt"
 
 permissions:
   contents: write
 
+concurrency:
+  group: signed-zh-release
+  cancel-in-progress: false
+
 jobs:
-  build:
+  release:
+    if: github.ref == 'refs/heads/zh-CN'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout localization branch
         uses: actions/checkout@v4
 
-      # Resolve the release version once, up front, and reuse it for the APK stamp, tag and name.
-      #   - non-empty input  -> use it verbatim (leading "v" stripped)
-      #   - empty input      -> take the latest published release tag and bump its patch number
-      #   - no releases yet   -> start at 0.1.0
-      - name: Resolve version
+      - name: Resolve and check version
         id: version
         env:
+          INPUT_VERSION: ${{ inputs.version }}
           GH_TOKEN: ${{ github.token }}
-          INPUT_VERSION: ${{ github.event.inputs.version }}
+        shell: bash
         run: |
           set -euo pipefail
-          provided="${INPUT_VERSION#[vV]}"
-          if [ -n "$provided" ]; then
-            resolved="$provided"
-          else
-            latest="$(gh release view --json tagName -q .tagName 2>/dev/null || true)"
-            latest="${latest#[vV]}"
-            if [ -z "$latest" ]; then
-              resolved="0.1.0"
-            else
-              IFS='.' read -r major minor patch <<< "$latest"
-              major="${major:-0}"; minor="${minor:-0}"; patch="${patch:-0}"
-              patch="${patch%%[!0-9]*}"; patch="${patch:-0}"
-              resolved="${major}.${minor}.$((patch + 1))"
-            fi
+          version="${INPUT_VERSION:-}"
+          if [[ -z "$version" ]]; then version="$(cat .release/TRIGGER_SIGNED_RELEASE.txt)"; fi
+          version="${version#v}"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-zh\.[0-9]+$ ]]; then
+            echo "::error::Expected version like 1.4.1-zh.2"
+            exit 1
           fi
-          echo "version=$resolved" >> "$GITHUB_OUTPUT"
-          echo "Resolved release version: $resolved (tag v$resolved)"
+          if gh release view "v$version" >/dev/null 2>&1 || git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; then
+            echo "::error::Tag v$version already exists; do not overwrite released APKs."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Set up JDK 17
+      - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Gradle
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Optional repo secrets (see SIGNING.md). If KEYSTORE_BASE64 isn't set - e.g. on a fork -
-      # this step is skipped and app/build.gradle.kts falls back to debug signing, so the build
-      # still succeeds; it just won't produce an installable-as-update signed APK.
-      - name: Decode signing keystore
+      - name: Require permanent signing secrets
+        shell: bash
         env:
-          KEYSTORE_BASE64_SECRET: ${{ secrets.KEYSTORE_BASE64 }}
-        if: ${{ env.KEYSTORE_BASE64_SECRET != '' }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.keystore"
-          echo "KEYSTORE_FILE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+          set -euo pipefail
+          for key in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "::error::Missing signing secret $key; stable release aborted (no debug-key fallback)."
+              exit 1
+            fi
+          done
+          keyfile="$RUNNER_TEMP/scp-reader-zh-release.p12"
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$keyfile"
+          chmod 600 "$keyfile"
+          keytool -list -keystore "$keyfile" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
+          echo "KEYSTORE_FILE=$keyfile" >> "$GITHUB_ENV"
 
-      - name: Build release APK
+      - name: Build signed APK
+        shell: bash
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        # Stamp the APK's versionName with the resolved version so the installed build self-reports
-        # the exact tag it was published under; versionCode uses the run number so each build is
-        # monotonically higher. The in-app update check then reads an installed build as up-to-date
-        # instead of always seeing a "newer" release.
         run: |
+          set -euo pipefail
+          version="${{ steps.version.outputs.version }}"
           ./gradlew assembleRelease --no-daemon \
-            -PappVersionName="${{ steps.version.outputs.version }}" \
-            -PappVersionCode="${{ github.run_number }}"
+            -PrequireReleaseSigning=true \
+            -PappVersionName="$version" \
+            -PappVersionCode="$((100000 + GITHUB_RUN_NUMBER))"
 
-      # $RUNNER_TEMP is outside the workspace/checkout so upload-artifact can never pick it up
-      # regardless of path patterns; this removes it from the runner's disk immediately anyway.
-      - name: Remove decoded keystore
+      - name: Verify APK signature and prepare assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          apk="$(find app/build/outputs/apk/release -maxdepth 1 -name '*.apk' -print -quit)"
+          test -n "$apk"
+          apksigner="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          test -n "$apksigner"
+          "$apksigner" verify --verbose "$apk"
+          "$apksigner" verify --print-certs "$apk" | grep -E 'Signer #1 certificate SHA-256 digest'
+          cp "$apk" "dist/scp-reader-v${{ steps.version.outputs.version }}.apk"
+          (cd dist && sha256sum *.apk > SHA256SUMS.txt)
+
+      - name: Delete temporary signing file
         if: always()
-        run: rm -f "$RUNNER_TEMP/release.keystore"
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/scp-reader-zh-release.p12"
 
-      - name: Locate APK
-        id: apk
-        run: echo "path=$(find app/build/outputs/apk/release -name '*.apk' | head -n 1)" >> "$GITHUB_OUTPUT"
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: scp-reader-release-apk
-          path: ${{ steps.apk.outputs.path }}
-
-      - name: Create draft release
+      - name: Publish public stable release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          name: v${{ steps.version.outputs.version }}
-          draft: true
-          files: ${{ steps.apk.outputs.path }}
+          target_commitish: ${{ github.sha }}
+          name: SCP Reader 简体中文汉化版 v${{ steps.version.outputs.version }}
+          prerelease: false
+          draft: false
+          make_latest: true
+          body_path: .release/RELEASE_NOTES_STABLE.md
+          files: |
+            dist/*.apk
+            dist/SHA256SUMS.txt

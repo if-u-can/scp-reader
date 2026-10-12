@@ -24,6 +24,12 @@ val releaseKeyPassword = keystoreProperties.getProperty("keyPassword") ?: System
 val hasReleaseSigning = !releaseStoreFile.isNullOrBlank() && !releaseStorePassword.isNullOrBlank() &&
     !releaseKeyAlias.isNullOrBlank() && !releaseKeyPassword.isNullOrBlank()
 
+// The official Chinese Release workflow passes -PrequireReleaseSigning=true.
+// Refuse to publish an accidentally debug-signed stable release.
+if ((project.findProperty("requireReleaseSigning") as String?) == "true" && !hasReleaseSigning) {
+    throw GradleException("Stable release signing is required. Configure GitHub Actions signing Secrets first.")
+}
+
 // Version stamp. CI injects the release tag (leading "v" already stripped) via -PappVersionName
 // and the run number via -PappVersionCode (see release.yml), so a released APK self-reports the
 // exact tag it was published under and the in-app update check reads tag == installed as
