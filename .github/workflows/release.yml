@@ -37,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           version="${INPUT_VERSION:-}"
-          if [[ -z "$version" ]]; then version="$(cat .release/TRIGGER_SIGNED_RELEASE.txt)"; fi
+          if [[ -z "$version" ]]; then version="$(head -n 1 .release/TRIGGER_SIGNED_RELEASE.txt | tr -d '\r')"; fi
           version="${version#v}"
           if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-zh\.[0-9]+$ ]]; then
             echo "::error::Expected version like 1.4.1-zh.2"

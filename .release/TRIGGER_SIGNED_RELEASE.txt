@@ -1,2 +1,2 @@
 1.4.1-zh.2
-# Re-run: certificate log formatter was too strict; APK v2 signature already verified.
+# Third run: fixed version parser to use first line only; Android v2 signature was valid.
