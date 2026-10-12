@@ -74,7 +74,8 @@ class SettingsStore(private val context: Context) {
             excludedClasses = p[Keys.excluded] ?: emptySet(),
             heroMode = p[Keys.hero]?.let { runCatching { HeroMode.valueOf(it) }.getOrNull() } ?: HeroMode.ContinueReading,
             sponsorCategories = p[Keys.sponsorCats] ?: com.foundation.scpreader.playback.SponsorCategory.DEFAULT_ENABLED,
-            selectedBranches = p[Keys.branches] ?: setOf(Branch.CN.code),
+            selectedBranches = Branch.fromCodes(p[Keys.branches] ?: setOf(Branch.CN.code))
+                .map { it.code }.toSet(),
             whatsNewSeen = p[Keys.whatsNewSeen] ?: "",
             wikidotSession = p[Keys.wikidotSession] ?: "",
             wikidotUser = p[Keys.wikidotUser] ?: "",

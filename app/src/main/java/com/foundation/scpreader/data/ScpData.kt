@@ -30,9 +30,17 @@ data class ScpItem(
      */
     val displayTitle: String get() = altTitle?.takeIf { it.isNotBlank() && it != title } ?: title
 
-    val classShort: String get() = if (objectClass == "Unknown") typeLabel else objectClass
+    val classShort: String get() = if (objectClass == "Unknown") displayType else objectClass
+    val displayType: String get() = when (typeLabel) {
+        "Tale" -> "故事"
+        "GoI" -> "相关组织"
+        else -> typeLabel
+    }
+    val displayClass: String get() = if (objectClass == "Unknown") "未分类" else objectClass
     val metaLine: String
-        get() = typeLabel + " · " + objectClass + if (tags.isNotEmpty()) " · " + contentTags.take(2).joinToString(", ") else ""
+        get() = displayType + " · " + displayClass +
+            if (contentTags.isNotEmpty()) " · " +
+                contentTags.take(2).joinToString("、") { UiTags.name(it) } else ""
 
     /** Tags with wiki plumbing (_licensebox, crom:*, scp, tale…) stripped for display. */
     val contentTags: List<String> get() = tags.filter { it.isNotBlank() && !it.startsWith("_") && !it.startsWith("crom:") && it !in NON_DISPLAY_TAGS }
@@ -142,6 +150,29 @@ data class Episode(
             NarrationSource.YOUTUBE -> "yt:" + (videoId ?: audioUrl)
             NarrationSource.PODCAST -> "pod:" + audioUrl
         }
+}
+
+/** Localized display labels; raw Wikidot tags remain unchanged for filtering/API requests. */
+object UiTags {
+    private val labels = mapOf(
+        "humanoid" to "人形", "human" to "人类", "alive" to "活体",
+        "animal" to "动物", "autonomous" to "自主行动", "biological" to "生物",
+        "building" to "建筑", "location" to "地点", "sapient" to "高智能",
+        "sentient" to "有感知能力", "extradimensional" to "异维度",
+        "reality-bending" to "现实扭曲", "ontokinetic" to "本体动力学",
+        "cognitohazard" to "认知危害", "memetic" to "模因",
+        "antimemetic" to "反模因", "mind-affecting" to "精神影响",
+        "memory-affecting" to "记忆影响", "mimetic" to "模仿",
+        "hostile" to "敌意", "benevolent" to "友善",
+        "mechanical" to "机械", "medical" to "医疗",
+        "predatory" to "掠食性", "reptilian" to "爬行动物",
+        "radioactive" to "放射性", "temporal" to "时间异常",
+        "teleportation" to "传送", "toxic" to "有毒",
+        "visual" to "视觉", "auditory" to "听觉", "weapon" to "武器",
+        "aquatic" to "水生", "plant" to "植物", "liquid" to "液体",
+        "structure" to "构造物", "religious" to "宗教",
+    )
+    fun name(tag: String): String = labels[tag] ?: tag
 }
 
 /** Object-class + type derivation from a page's wikidot tags. */

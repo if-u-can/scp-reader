@@ -115,7 +115,7 @@ class AppState(
 
     var randomType by mutableStateOf(RandomType.Scp)
     var randomMode by mutableStateOf(RandomMode.Pool)
-    var randomTags by mutableStateOf(listOf("humanoid"))
+    var randomTags by mutableStateOf(emptyList<String>())
     var randomTagInput by mutableStateOf("")
     var randomCount by mutableStateOf(50)
     var randomSeries by mutableStateOf(1)
@@ -194,7 +194,7 @@ class AppState(
     init {
         // Surface a transient toast whenever the player auto-skips a SponsorBlock segment.
         player.onSponsorSkipped = { category ->
-            notice("Skipped ${com.foundation.scpreader.playback.SponsorCategory.label(category).lowercase()}")
+            notice("已跳过${com.foundation.scpreader.playback.SponsorCategory.label(category)}")
         }
         // A YouTube stream URL expired mid-playback: re-extract a fresh one and resume in place.
         player.onSourceError = { episode, positionMs -> reResolveAndResume(episode, positionMs) }
@@ -205,9 +205,19 @@ class AppState(
         checkForUpdates()
         viewModelScope.launch { repo.downloads.collect { downloads = it; redecorate() } }
         viewModelScope.launch { repo.bookmarks.collect { bookmarks = it; bookmarkedUrls = it.map { b -> b.url }.toSet() } }
-        viewModelScope.launch { repo.recents.collect { recentlyViewed = repo.decorate(it) } }
+        viewModelScope.launch {
+            repo.recents.collect {
+                allRecentItems = it
+                refreshHistoryForBranch()
+            }
+        }
         viewModelScope.launch { repo.recentRows.collect { rows -> recentProgress = rows.associate { it.url to it.progress } } }
-        viewModelScope.launch { repo.searchRecents.collect { searchRecentlyViewed = repo.decorate(it) } }
+        viewModelScope.launch {
+            repo.searchRecents.collect {
+                allSearchRecentItems = it
+                refreshHistoryForBranch()
+            }
+        }
         viewModelScope.launch { repo.tagVocab.collect { tagVocab = it } }
         // Redecorate feed/search whenever narration availability changes (e.g. after YouTube sync).
         viewModelScope.launch { repo.availability.collect { redecorate() } }
@@ -237,12 +247,14 @@ class AppState(
         downloadPref = s.downloadPref; autoDownloadBookmarks = s.autoDownloadBookmarks
         excludedClasses = s.excludedClasses; heroMode = s.heroMode
         sponsorCategories = s.sponsorCategories
-        selectedBranches = s.selectedBranches
+        selectedBranches = com.foundation.scpreader.data.Branch.fromCodes(s.selectedBranches)
+            .map { it.code }.toSet()
         whatsNewSeen = s.whatsNewSeen
         wikidotSession = s.wikidotSession; wikidotUser = s.wikidotUser
         repo.setWikidotSession(s.wikidotSession)
         repo.setWifiOnly(s.wifiOnly)
-        repo.setBranches(com.foundation.scpreader.data.Branch.fromCodes(s.selectedBranches))
+        repo.setBranches(com.foundation.scpreader.data.Branch.fromCodes(selectedBranches))
+        refreshHistoryForBranch()
     }
 
     private fun currentSettings() = Settings(
@@ -251,19 +263,42 @@ class AppState(
         selectedBranches, whatsNewSeen, wikidotSession, wikidotUser,
     )
 
-    /**
-     * Toggle a branch in the discovery set. English can't be removed to empty - at least one branch
-     * must remain, so removing the last one is a no-op. Reloads the feed/hero to reflect the change.
-     */
-    fun toggleBranch(code: String) {
-        val next = if (code in selectedBranches) selectedBranches - code else selectedBranches + code
-        if (next.isEmpty()) return
-        selectedBranches = next
-        repo.setBranches(com.foundation.scpreader.data.Branch.fromCodes(next))
-        // Fresh branch mix → re-pull discovery so it reflects the new sources immediately.
-        scpOfDay = null; trending = null
+    /** Select exactly one wiki. Never mix English and Chinese listing results. */
+    fun selectBranch(code: String) {
+        val selected = when (code) {
+            com.foundation.scpreader.data.Branch.EN.code -> com.foundation.scpreader.data.Branch.EN
+            else -> com.foundation.scpreader.data.Branch.CN
+        }
+        if (selectedBranches == setOf(selected.code)) return
+        selectedBranches = setOf(selected.code)
+        repo.setBranches(listOf(selected))
+        searchJob?.cancel()
+        searchRaw = emptyList()
+        searchResults = emptyList()
+        searchLoading = false
+        searchTopRated = emptyList()
+        searchTopRatedLoading = false
+        searchTopRatedError = false
+        scpOfDay = null
+        trending = null
+        // Preserve history in the DB but show only entries from the chosen wiki.
+        refreshHistoryForBranch()
+        loadFeed()
         loadHero()
-        if (screen == Screen.Home && feedIsRandom) loadFeed()
+        loadSearchTopRated()
+        if (searchQuery.isNotBlank()) onSearchQuery(searchQuery)
+    }
+
+    private var allRecentItems: List<ScpItem> = emptyList()
+    private var allSearchRecentItems: List<ScpItem> = emptyList()
+    private fun refreshHistoryForBranch() {
+        val branch = repo.selectedBranch()
+        recentlyViewed = repo.decorate(allRecentItems.filter {
+            com.foundation.scpreader.data.Branch.ofUrl(it.url) == branch
+        })
+        searchRecentlyViewed = repo.decorate(allSearchRecentItems.filter {
+            com.foundation.scpreader.data.Branch.ofUrl(it.url) == branch
+        })
     }
 
     private fun daySeed(): Long {
@@ -273,8 +308,19 @@ class AppState(
 
     /** Loads the content the hero slot needs (SCP-of-the-Day + Trending). */
     fun loadHero() {
-        viewModelScope.launch { if (scpOfDay == null) scpOfDay = repo.scpOfDay(daySeed(), excludedClasses) }
-        viewModelScope.launch { if (trending == null) trending = repo.trendingItem() }
+        val source = repo.selectedBranch()
+        viewModelScope.launch {
+            if (scpOfDay == null) {
+                val result = repo.scpOfDay(daySeed(), excludedClasses)
+                if (repo.selectedBranch() == source) scpOfDay = result
+            }
+        }
+        viewModelScope.launch {
+            if (trending == null) {
+                val result = repo.trendingItem()
+                if (repo.selectedBranch() == source) trending = result
+            }
+        }
     }
 
     fun selectHeroMode(m: HeroMode) { heroMode = m; loadHero() }
@@ -300,14 +346,18 @@ class AppState(
     /** Re-check connectivity; call before/around network work so the Home banner stays current. */
     fun refreshConnectivity() { offline = !isOnline() }
 
+    private var feedJob: Job? = null
     fun loadFeed(reset: Boolean = true) {
+        feedJob?.cancel()
         refreshConnectivity()
         if (reset) { feedRaw = emptyList(); feedCursor = null; feed = emptyList() }
         feedLoading = true; feedError = null
-        viewModelScope.launch {
+        val source = repo.selectedBranch()
+        feedJob = viewModelScope.launch {
             if (feedIsRandom) {
                 runCatching { if (narratedOnly) repo.randomNarratedItems(12, excludedClasses) else repo.randomItems(12, excludedClasses) }
                     .onSuccess { items ->
+                        if (repo.selectedBranch() != source) return@onSuccess
                         feedRaw = (feedRaw + items).distinctBy { it.url }
                         feed = repo.decorate(feedRaw)
                         // Narrated pool is finite: stop paging once a fetch adds nothing new.
@@ -315,16 +365,17 @@ class AppState(
                         if (feedRaw.isEmpty() && narratedOnly)
                             feedError = "暂时没有可朗读的档案，音频索引可能仍在同步。关闭「有朗读」筛选可浏览全部档案。"
                     }
-                    .onFailure { feedError = it.message ?: "随机档案加载失败" }
+                    .onFailure { if (repo.selectedBranch() == source) feedError = it.message ?: "随机档案加载失败" }
             } else {
                 runCatching { repo.topRated(tag = feedTagFor(typeFilter), after = feedCursor) }
                     .onSuccess { page ->
+                        if (repo.selectedBranch() != source) return@onSuccess
                         feedRaw = feedRaw + page.items
                         feedCursor = page.endCursor
                         feedHasMore = page.hasNext
                         feed = repo.decorate(feedRaw)
                     }
-                    .onFailure { feedError = it.message ?: "基金会档案加载失败" }
+                    .onFailure { if (repo.selectedBranch() == source) feedError = it.message ?: "基金会档案加载失败" }
             }
             feedLoading = false
             heroRefreshing = false
@@ -399,9 +450,11 @@ class AppState(
         if (searchTopRated.isNotEmpty() || searchTopRatedLoading) return
         searchTopRatedLoading = true
         searchTopRatedError = false
+        val source = repo.selectedBranch()
         viewModelScope.launch {
-            runCatching { repo.topRated(tag = "scp") }
-                .onSuccess { searchTopRated = it.items.take(12) }
+            val result = runCatching { repo.topRated(tag = "scp") }
+            if (repo.selectedBranch() != source) return@launch
+            result.onSuccess { searchTopRated = it.items.take(12) }
                 .onFailure { searchTopRatedError = true }
             searchTopRatedLoading = false
         }

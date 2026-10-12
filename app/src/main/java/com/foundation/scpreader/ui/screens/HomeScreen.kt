@@ -131,7 +131,7 @@ fun HomeScreen(app: AppState) {
         ) {
             Column(Modifier.weight(1f)) {
                 Text("基金会档案库", fontSize = 13.sp, fontWeight = FontWeight.Medium, letterSpacing = 1.4.sp, color = c.primary)
-                Text("控制。收容。保护。", fontSize = 27.sp, color = c.onSurface, lineHeight = 30.sp)
+                Text("控制，收容，保护", fontSize = 27.sp, color = c.onSurface, lineHeight = 30.sp)
             }
             // Settings lives here (top-right action), not in the bottom navigation bar.
             Box(

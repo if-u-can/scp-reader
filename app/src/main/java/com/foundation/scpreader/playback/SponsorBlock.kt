@@ -27,14 +27,14 @@ object SponsorCategory {
     val DEFAULT_ENABLED = ALL.toSet()
 
     fun label(category: String): String = when (category) {
-        SPONSOR -> "Sponsor"
-        SELF_PROMO -> "Self-promotion"
-        INTERACTION -> "Interaction reminder"
-        INTRO -> "Intro / intermission"
-        OUTRO -> "Outro / endcards"
-        PREVIEW -> "Preview / recap"
-        MUSIC_OFFTOPIC -> "Non-narration section"
-        FILLER -> "Filler / tangent"
+        SPONSOR -> "赞助广告"
+        SELF_PROMO -> "自我推广"
+        INTERACTION -> "互动提醒"
+        INTRO -> "片头或中场"
+        OUTRO -> "片尾和结束画面"
+        PREVIEW -> "预告与回顾"
+        MUSIC_OFFTOPIC -> "非朗读片段"
+        FILLER -> "闲聊与无关内容"
         else -> category
     }
 }

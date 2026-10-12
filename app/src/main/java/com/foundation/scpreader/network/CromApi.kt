@@ -62,16 +62,16 @@ class CromApi(private val client: OkHttpClient) {
     data class Page(val items: List<ScpItem>, val endCursor: String?, val hasNext: Boolean)
 
     /**
-     * Top-rated EN-branch pages, optionally restricted to a wikidot tag (e.g. "scp", "tale").
+     * Top-rated pages in the selected branch, optionally restricted to a wikidot tag (e.g. "scp", "tale").
      * When [createdAfter] (an ISO-8601 instant) is given, only pages created on or after that
      * time are considered - used to surface the highest-rated pages of the last week.
      */
-    suspend fun topRated(tag: String = "scp", after: String? = null, first: Int = 20, createdAfter: String? = null): Page = withContext(Dispatchers.IO) {
+    suspend fun topRated(tag: String = "scp", after: String? = null, first: Int = 20, createdAfter: String? = null, host: String = enBranch): Page = withContext(Dispatchers.IO) {
         val afterArg = if (after != null) ", after: \"$after\"" else ""
         val createdArg = if (createdAfter != null) ", createdAt: {gte: \"$createdAfter\"}" else ""
         val query = """
             { pages(sort: {key: RATING, order: DESC}, first: $first$afterArg,
-                filter: { url: {startsWith: "$enBranch"}, wikidotInfo: { tags: {eq: "$tag"}$createdArg } }) {
+                filter: { url: {startsWith: "$host"}, wikidotInfo: { tags: {eq: "$tag"}$createdArg } }) {
                 edges { node { url alternateTitles { title } wikidotInfo { title rating tags } } }
                 pageInfo { endCursor hasNextPage }
               } }
@@ -193,7 +193,12 @@ class CromApi(private val client: OkHttpClient) {
             url = url,
             number = number,
             title = title,
-            altTitle = alternateTitles.firstOrNull()?.title?.takeIf { it.isNotBlank() },
+            altTitle = alternateTitles.mapNotNull { it.title?.takeIf { name -> name.isNotBlank() } }.let { titles ->
+                if (url.substringAfter("://").startsWith("scp-wiki-cn.wikidot.com/")) {
+                    titles.firstOrNull { name -> name.any { ch -> ch.code in 0x3400..0x9FFF } }
+                        ?: if (title.any { ch -> ch.code in 0x3400..0x9FFF }) null else titles.firstOrNull()
+                } else titles.firstOrNull()
+            },
             objectClass = Taxonomy.objectClass(tags),
             typeLabel = type,
             tags = tags,

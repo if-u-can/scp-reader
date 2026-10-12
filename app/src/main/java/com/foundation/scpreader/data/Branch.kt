@@ -43,8 +43,8 @@ enum class Branch(val code: String, val displayName: String, val host: String) {
             return entries.firstOrNull { hostAndPath.startsWith(it.hostKey + "/") || hostAndPath == it.hostKey }
         }
 
-        /** Resolve a set of persisted branch [codes] to branches, always non-empty (falls back to EN). */
+        /** Single content source. A legacy multi-select containing CN migrates to CN. */
         fun fromCodes(codes: Set<String>): List<Branch> =
-            codes.mapNotNull { byCode(it) }.ifEmpty { listOf(CN) }
+            listOf(if (CN.code in codes || EN.code !in codes) CN else EN)
     }
 }
