@@ -348,7 +348,7 @@ class AppState(
         refreshConnectivity()
         if (reset) { feedRaw = emptyList(); feedCursor = null; feed = emptyList() }
         feedLoading = true; feedError = null
-        val source = repo.selectedBranch()
+        val source = repo.sourceSignature()
         feedJob = viewModelScope.launch {
             if (feedIsRandom) {
                 runCatching { if (narratedOnly) repo.randomNarratedItems(12, excludedClasses) else repo.randomItems(12, excludedClasses) }
@@ -449,7 +449,7 @@ class AppState(
         if (searchTopRated.isNotEmpty() || searchTopRatedLoading) return
         searchTopRatedLoading = true
         searchTopRatedError = false
-        val source = repo.selectedBranch()
+        val source = repo.sourceSignature()
         viewModelScope.launch {
             val result = runCatching { repo.topRated(tag = "scp") }
             if (repo.sourceSignature() != source) return@launch
