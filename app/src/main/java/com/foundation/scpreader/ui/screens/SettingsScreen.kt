@@ -221,31 +221,25 @@ fun SettingsScreen(app: AppState) {
             }
         }
 
-        // ---- Content source: exactly one wiki ----
-        GroupLabel("档案来源")
+        // ---- Content branches ----
+        GroupLabel("维基分部")
         SettingsCard {
-            Text("选择文档分部", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
-            Text("只使用所选分部的档案。首页、搜索、故事、相关组织、系列与下载均会随之切换；已保存的离线档案不受影响。", fontSize = 13.sp, lineHeight = 18.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 12.dp))
-            listOf(
-                com.foundation.scpreader.data.Branch.CN to "中文分部 · SCP-CN",
-                com.foundation.scpreader.data.Branch.EN to "英文主站 · SCP-EN",
-            ).forEach { (branch, label) ->
-                val selected = app.selectedBranches.contains(branch.code)
-                Row(
-                    Modifier.fillMaxWidth().clickable { app.selectBranch(branch.code) }
-                        .padding(horizontal = 18.dp, vertical = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                ) {
-                    Icon(
-                        if (selected) AppIcons.Check else AppIcons.Article,
-                        null, Modifier.size(20.dp),
-                        tint = if (selected) c.primary else c.onSurfaceVariant,
-                    )
-                    Text(label, fontSize = 15.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                        color = if (selected) c.primary else c.onSurface)
+            Text("语言分部", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, modifier = Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 4.dp))
+            Text("可同时选择多个语言分部。首页、检索、故事、相关组织、系列及批量下载只从已选分部获取内容；至少保留一个分部。", fontSize = 13.sp, lineHeight = 18.sp, color = c.onSurfaceVariant, modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 10.dp))
+            FlowRow(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                com.foundation.scpreader.data.Branch.entries.forEach { branch ->
+                    val on = app.selectedBranches.contains(branch.code)
+                    Row(
+                        Modifier.height(36.dp).clip(RoundedCornerShape(10.dp))
+                            .background(if (on) c.primary else Color.Transparent)
+                            .then(if (on) Modifier else Modifier.border(1.dp, c.outlineVariant, RoundedCornerShape(10.dp)))
+                            .clickable { app.toggleBranch(branch.code) }.padding(horizontal = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        if (on) Icon(AppIcons.Check, null, Modifier.size(15.dp), tint = c.onPrimary)
+                        Text(branch.displayName, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = if (on) c.onPrimary else c.onSurfaceVariant)
+                    }
                 }
-                if (branch == com.foundation.scpreader.data.Branch.CN) Divider1()
             }
         }
 

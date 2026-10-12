@@ -263,15 +263,12 @@ class AppState(
         selectedBranches, whatsNewSeen, wikidotSession, wikidotUser,
     )
 
-    /** Select exactly one wiki. Never mix English and Chinese listing results. */
-    fun selectBranch(code: String) {
-        val selected = when (code) {
-            com.foundation.scpreader.data.Branch.EN.code -> com.foundation.scpreader.data.Branch.EN
-            else -> com.foundation.scpreader.data.Branch.CN
-        }
-        if (selectedBranches == setOf(selected.code)) return
-        selectedBranches = setOf(selected.code)
-        repo.setBranches(listOf(selected))
+    /** Toggle any language division; never allow the final checked division to be removed. */
+    fun toggleBranch(code: String) {
+        val next = if (code in selectedBranches) selectedBranches - code else selectedBranches + code
+        if (next.isEmpty()) return
+        selectedBranches = next
+        repo.setBranches(com.foundation.scpreader.data.Branch.fromCodes(next))
         searchJob?.cancel()
         searchRaw = emptyList()
         searchResults = emptyList()
@@ -281,7 +278,6 @@ class AppState(
         searchTopRatedError = false
         scpOfDay = null
         trending = null
-        // Preserve history in the DB but show only entries from the chosen wiki.
         refreshHistoryForBranch()
         loadFeed()
         loadHero()
@@ -292,12 +288,12 @@ class AppState(
     private var allRecentItems: List<ScpItem> = emptyList()
     private var allSearchRecentItems: List<ScpItem> = emptyList()
     private fun refreshHistoryForBranch() {
-        val branch = repo.selectedBranch()
+        val active = repo.selectedSources().toSet()
         recentlyViewed = repo.decorate(allRecentItems.filter {
-            com.foundation.scpreader.data.Branch.ofUrl(it.url) == branch
+            com.foundation.scpreader.data.Branch.ofUrl(it.url) in active
         })
         searchRecentlyViewed = repo.decorate(allSearchRecentItems.filter {
-            com.foundation.scpreader.data.Branch.ofUrl(it.url) == branch
+            com.foundation.scpreader.data.Branch.ofUrl(it.url) in active
         })
     }
 
@@ -308,17 +304,17 @@ class AppState(
 
     /** Loads the content the hero slot needs (SCP-of-the-Day + Trending). */
     fun loadHero() {
-        val source = repo.selectedBranch()
+        val source = repo.sourceSignature()
         viewModelScope.launch {
             if (scpOfDay == null) {
                 val result = repo.scpOfDay(daySeed(), excludedClasses)
-                if (repo.selectedBranch() == source) scpOfDay = result
+                if (repo.sourceSignature() == source) scpOfDay = result
             }
         }
         viewModelScope.launch {
             if (trending == null) {
                 val result = repo.trendingItem()
-                if (repo.selectedBranch() == source) trending = result
+                if (repo.sourceSignature() == source) trending = result
             }
         }
     }
@@ -357,7 +353,7 @@ class AppState(
             if (feedIsRandom) {
                 runCatching { if (narratedOnly) repo.randomNarratedItems(12, excludedClasses) else repo.randomItems(12, excludedClasses) }
                     .onSuccess { items ->
-                        if (repo.selectedBranch() != source) return@onSuccess
+                        if (repo.sourceSignature() != source) return@onSuccess
                         feedRaw = (feedRaw + items).distinctBy { it.url }
                         feed = repo.decorate(feedRaw)
                         // Narrated pool is finite: stop paging once a fetch adds nothing new.
@@ -365,17 +361,17 @@ class AppState(
                         if (feedRaw.isEmpty() && narratedOnly)
                             feedError = "暂时没有可朗读的档案，音频索引可能仍在同步。关闭「有朗读」筛选可浏览全部档案。"
                     }
-                    .onFailure { if (repo.selectedBranch() == source) feedError = it.message ?: "随机档案加载失败" }
+                    .onFailure { if (repo.sourceSignature() == source) feedError = it.message ?: "随机档案加载失败" }
             } else {
                 runCatching { repo.topRated(tag = feedTagFor(typeFilter), after = feedCursor) }
                     .onSuccess { page ->
-                        if (repo.selectedBranch() != source) return@onSuccess
+                        if (repo.sourceSignature() != source) return@onSuccess
                         feedRaw = feedRaw + page.items
                         feedCursor = page.endCursor
                         feedHasMore = page.hasNext
                         feed = repo.decorate(feedRaw)
                     }
-                    .onFailure { if (repo.selectedBranch() == source) feedError = it.message ?: "基金会档案加载失败" }
+                    .onFailure { if (repo.sourceSignature() == source) feedError = it.message ?: "基金会档案加载失败" }
             }
             feedLoading = false
             heroRefreshing = false
@@ -453,7 +449,7 @@ class AppState(
         val source = repo.selectedBranch()
         viewModelScope.launch {
             val result = runCatching { repo.topRated(tag = "scp") }
-            if (repo.selectedBranch() != source) return@launch
+            if (repo.sourceSignature() != source) return@launch
             result.onSuccess { searchTopRated = it.items.take(12) }
                 .onFailure { searchTopRatedError = true }
             searchTopRatedLoading = false

@@ -43,8 +43,8 @@ enum class Branch(val code: String, val displayName: String, val host: String) {
             return entries.firstOrNull { hostAndPath.startsWith(it.hostKey + "/") || hostAndPath == it.hostKey }
         }
 
-        /** Single content source. A legacy multi-select containing CN migrates to CN. */
+        /** Keep every selected regional division. Fall back to SCP-CN if none remain. */
         fun fromCodes(codes: Set<String>): List<Branch> =
-            listOf(if (CN.code in codes || EN.code !in codes) CN else EN)
+            codes.mapNotNull { byCode(it) }.ifEmpty { listOf(CN) }
     }
 }

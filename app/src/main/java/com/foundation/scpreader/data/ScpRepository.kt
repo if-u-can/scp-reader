@@ -68,9 +68,10 @@ class ScpRepository(
     // priority follows how the branches are listed in Settings.
     @Volatile private var branches: List<Branch> = listOf(Branch.CN)
     fun setBranches(list: List<Branch>) {
-        branches = listOf(if (list.contains(Branch.CN) || list.none { it == Branch.EN }) Branch.CN else Branch.EN)
+        branches = list.distinct().ifEmpty { listOf(Branch.CN) }.sortedBy { it.ordinal }
     }
-    fun selectedBranch(): Branch = branches.firstOrNull() ?: Branch.CN
+    fun sourceSignature(): String = branches.joinToString(",") { it.code }
+    fun selectedSources(): List<Branch> = branches.toList()
 
     // ---- Wikidot voting (the signed-in user's own +1/-1 on articles) ----
     @Volatile private var wikidotSession: String? = null
@@ -139,10 +140,52 @@ class ScpRepository(
     }
 
     // ---- browse / search ----
-    suspend fun topRated(tag: String = "scp", after: String? = null): CromApi.Page {
-        val page = crom.topRated(tag = tag, after = after, host = selectedBranch().host)
+    /**
+     * Rated archive feed for the chosen wiki divisions. A single chosen branch uses its
+     * native CROM cursor; multiple branches get independent cursors to avoid leaking EN
+     * entries or losing pagination when EN isn't selected.
+     */
+    suspend fun topRated(
+        tag: String = "scp",
+        after: String? = null,
+        first: Int = 20,
+        createdAfter: String? = null,
+    ): CromApi.Page = coroutineScope {
+        val sources = selectedSources()
+        val page = if (sources.size == 1) {
+            crom.topRated(tag = tag, after = after, first = first, createdAfter = createdAfter, host = sources.first().host)
+        } else {
+            val state = after?.takeIf { it.startsWith("multi:") }
+                ?.removePrefix("multi:")?.split(",")
+            val each = ((first + sources.size - 1) / sources.size).coerceAtLeast(1)
+            val pages = sources.mapIndexed { i, branch ->
+                async {
+                    val token = state?.getOrNull(i)
+                    if (token == "!") null
+                    else {
+                        val cursor = token?.takeIf { it.isNotBlank() && it != "~" }
+                            ?.let { runCatching {
+                                String(android.util.Base64.decode(it, android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP), Charsets.UTF_8)
+                            }.getOrNull() }
+                        crom.topRated(tag = tag, after = cursor, first = each, createdAfter = createdAfter, host = branch.host)
+                    }
+                }
+            }.awaitAll()
+            val entries = pages.filterNotNull().flatMap { it.items }
+                .distinctBy { it.url }.sortedByDescending { it.rating }
+            val continuation = pages.map { branchPage ->
+                if (branchPage?.hasNext == true && !branchPage.endCursor.isNullOrBlank()) {
+                    android.util.Base64.encodeToString(
+                        branchPage.endCursor.toByteArray(Charsets.UTF_8),
+                        android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP,
+                    )
+                } else "!"
+            }
+            val hasMore = continuation.any { it != "!" }
+            CromApi.Page(entries, if (hasMore) "multi:" + continuation.joinToString(",") else null, hasMore)
+        }
         recordTags(page.items)
-        return page.copy(items = decorate(page.items))
+        page.copy(items = decorate(page.items))
     }
 
     suspend fun search(query: String): List<ScpItem> {
@@ -279,7 +322,7 @@ class ScpRepository(
         var after: String? = null
         var added = 0
         while (added < count) {
-            val page = runCatching { crom.topRated(tag = tag, after = after, first = 50, host = selectedBranch().host) }.getOrNull() ?: break
+            val page = runCatching { topRated(tag = tag, after = after, first = 50) }.getOrNull() ?: break
             for (it in page.items) {
                 if (added >= count) break
                 enqueueNow(it, withAudio = false); added++
@@ -294,7 +337,7 @@ class ScpRepository(
         var after: String? = null
         var added = 0
         while (added < cap) {
-            val page = runCatching { crom.topRated(tag = tag, after = after, first = 50, host = selectedBranch().host) }.getOrNull() ?: break
+            val page = runCatching { topRated(tag = tag, after = after, first = 50) }.getOrNull() ?: break
             page.items.forEach { enqueueNow(it, withAudio = false); added++ }
             if (!page.hasNext) break
             after = page.endCursor
@@ -445,9 +488,9 @@ class ScpRepository(
     /** Highest-rated SCP created in the last week (for the Trending hero). */
     suspend fun trendingItem(): ScpItem? {
         val weekAgo = java.time.Instant.now().minus(7, java.time.temporal.ChronoUnit.DAYS).toString()
-        val recent = runCatching { crom.topRated(tag = "scp", first = 1, createdAfter = weekAgo, host = selectedBranch().host).items.firstOrNull() }.getOrNull()
+        val recent = runCatching { topRated(tag = "scp", first = 20, createdAfter = weekAgo).items.firstOrNull() }.getOrNull()
         // Fall back to the all-time top page if nothing qualified in the past week.
-        val item = recent ?: runCatching { crom.topRated(tag = "scp", first = 1, host = selectedBranch().host).items.firstOrNull() }.getOrNull()
+        val item = recent ?: runCatching { topRated(tag = "scp", first = 20).items.firstOrNull() }.getOrNull()
         return item?.let { decorate(listOf(it)).first() }
     }
 
@@ -456,7 +499,7 @@ class ScpRepository(
         val out = ArrayList<ScpItem>()
         var after: String? = null
         while (out.size < max) {
-            val page = runCatching { crom.topRated(tag = tag, after = after, first = 50, host = selectedBranch().host) }.getOrNull() ?: break
+            val page = runCatching { topRated(tag = tag, after = after, first = 50) }.getOrNull() ?: break
             out.addAll(page.items)
             if (!page.hasNext) break
             after = page.endCursor
