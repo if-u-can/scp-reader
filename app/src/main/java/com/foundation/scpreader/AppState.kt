@@ -416,10 +416,13 @@ class AppState(
         searchJob?.cancel()
         if (q.isBlank()) { searchRaw = emptyList(); searchResults = emptyList(); searchLoading = false; return }
         searchLoading = true
+        val source = repo.sourceSignature()
         searchJob = viewModelScope.launch {
             kotlinx.coroutines.delay(280) // debounce
-            runCatching { repo.search(q) }
-                .onSuccess { searchRaw = it; applySearchFilters() }
+            val result = runCatching { repo.search(q) }
+            // An old network request must never repopulate a newly selected branch.
+            if (repo.sourceSignature() != source || searchQuery != q) return@launch
+            result.onSuccess { searchRaw = it; applySearchFilters() }
                 .onFailure { searchRaw = emptyList(); searchResults = emptyList() }
             searchLoading = false
         }
