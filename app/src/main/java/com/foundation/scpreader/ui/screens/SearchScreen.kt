@@ -170,7 +170,7 @@ private fun SearchZeroState(app: AppState) {
         }
     }
 
-    SectionLabel("评分最高")
+    SectionLabel("总站评分排行 · 已选分部档案")
     when {
         app.searchTopRatedLoading && app.searchTopRated.isEmpty() ->
             Box(Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) {
@@ -350,7 +350,7 @@ private fun ResultRow(app: AppState, item: ScpItem) {
         Column(Modifier.weight(1f)) {
             Text(item.number, fontFamily = Mono, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = c.primary)
             Text(item.displayTitle, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = c.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(item.metaLine, fontSize = 13.sp, color = c.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(if (item.mainSiteRankScore != null) "总站 ★ ${item.mainSiteRankScore} · ${item.metaLine}" else item.metaLine, fontSize = 13.sp, color = c.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         if (item.podcast) Icon(AppIcons.Headphones, null, Modifier.size(20.dp), tint = c.primary)
         if (item.downloaded) Icon(AppIcons.DownloadDone, null, Modifier.size(20.dp), tint = c.primary)

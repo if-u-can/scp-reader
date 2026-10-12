@@ -451,7 +451,7 @@ class AppState(
         searchTopRatedError = false
         val source = repo.sourceSignature()
         viewModelScope.launch {
-            val result = runCatching { repo.topRated(tag = "scp") }
+            val result = runCatching { repo.mainSiteRanked(tag = "scp", first = 48) }
             if (repo.sourceSignature() != source) return@launch
             result.onSuccess { searchTopRated = it.items.take(12) }
                 .onFailure { searchTopRatedError = true }

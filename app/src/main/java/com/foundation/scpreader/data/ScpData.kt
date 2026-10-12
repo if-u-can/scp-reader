@@ -16,6 +16,8 @@ data class ScpItem(
     val typeLabel: String,           // "SCP" | "Tale" | "GoI"
     val tags: List<String>,
     val rating: Int = 0,
+    /** English main-site rating when this entry was selected from the global ranking. */
+    val mainSiteRankScore: Int? = null,
     val hasImage: Boolean = false,
     val imageUrl: String? = null,
     val excerpt: String = "",

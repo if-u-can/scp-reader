@@ -288,7 +288,7 @@ private fun HeroSlot(app: AppState) {
                     }
                     Text("已阅读 ${(frac * 100).roundToInt()}%", fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f), modifier = Modifier.padding(top = 7.dp))
                 } else {
-                    Text("★ ${item.rating} · ${item.objectClass}", fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f), modifier = Modifier.padding(top = 10.dp))
+                    Text(if (item.mainSiteRankScore != null) "总站 ★ ${item.mainSiteRankScore} · ${item.objectClass}" else "★ ${item.rating} · ${item.objectClass}", fontSize = 12.sp, color = c.onPrimaryContainer.copy(alpha = 0.85f), modifier = Modifier.padding(top = 10.dp))
                 }
             }
         }

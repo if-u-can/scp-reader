@@ -188,6 +188,25 @@ class ScpRepository(
         page.copy(items = decorate(page.items))
     }
 
+
+    /** EN total ranking -> corresponding articles in the user-selected wiki divisions. */
+    suspend fun mainSiteRanked(
+        tag: String = "scp",
+        after: String? = null,
+        first: Int = 40,
+        createdAfter: String? = null,
+    ): CromApi.Page {
+        val result = crom.mainSiteRanked(
+            tag = tag,
+            after = after,
+            first = first,
+            createdAfter = createdAfter,
+            hosts = selectedSources().map { it.host },
+        )
+        recordTags(result.items)
+        return result.copy(items = decorate(result.items))
+    }
+
     suspend fun search(query: String): List<ScpItem> {
         // Token search first (exact numbers, titles, words), then number-prefix matches so a
         // partial number like "scp 0" or "17" narrows the archive by rating instead of returning
@@ -322,7 +341,7 @@ class ScpRepository(
         var after: String? = null
         var added = 0
         while (added < count) {
-            val page = runCatching { topRated(tag = tag, after = after, first = 50) }.getOrNull() ?: break
+            val page = runCatching { mainSiteRanked(tag = tag, after = after, first = 50) }.getOrNull() ?: break
             for (it in page.items) {
                 if (added >= count) break
                 enqueueNow(it, withAudio = false); added++
@@ -488,9 +507,9 @@ class ScpRepository(
     /** Highest-rated SCP created in the last week (for the Trending hero). */
     suspend fun trendingItem(): ScpItem? {
         val weekAgo = java.time.Instant.now().minus(7, java.time.temporal.ChronoUnit.DAYS).toString()
-        val recent = runCatching { topRated(tag = "scp", first = 20, createdAfter = weekAgo).items.firstOrNull() }.getOrNull()
+        val recent = runCatching { mainSiteRanked(tag = "scp", first = 40, createdAfter = weekAgo).items.firstOrNull() }.getOrNull()
         // Fall back to the all-time top page if nothing qualified in the past week.
-        val item = recent ?: runCatching { topRated(tag = "scp", first = 20).items.firstOrNull() }.getOrNull()
+        val item = recent ?: runCatching { mainSiteRanked(tag = "scp", first = 40).items.firstOrNull() }.getOrNull()
         return item?.let { decorate(listOf(it)).first() }
     }
 

@@ -38,6 +38,7 @@ class CromApi(private val client: OkHttpClient) {
         val url: String,
         val wikidotInfo: WikidotInfo? = null,
         val alternateTitles: List<AltTitle> = emptyList(),
+        val translations: List<Node> = emptyList(),
     )
     @Serializable private data class Edge(val node: Node)
     @Serializable private data class PageInfo(val endCursor: String? = null, val hasNextPage: Boolean = false)
@@ -127,6 +128,51 @@ class CromApi(private val client: OkHttpClient) {
             }
         }
         out.values.toList()
+    }
+
+
+    /**
+     * Main-site score ranking with native documents from the currently selected wiki divisions.
+     * The EN nodes supply the order; a translation's own URL, title, tags and rating are used
+     * for the displayed item, which opens the corresponding wiki article directly.
+     * Entries without an available counterpart in the selected divisions are omitted.
+     */
+    suspend fun mainSiteRanked(
+        tag: String = "scp",
+        after: String? = null,
+        first: Int = 40,
+        createdAfter: String? = null,
+        hosts: List<String>,
+    ): Page = withContext(Dispatchers.IO) {
+        val preferred = hosts.distinct().let { list ->
+            list.filter { it == "http://scp-wiki-cn.wikidot.com" } +
+                list.filterNot { it == "http://scp-wiki-cn.wikidot.com" }
+        }
+        if (preferred.isEmpty()) return@withContext Page(emptyList(), null, false)
+        val afterArg = after?.let { ", after: \"$it\"" } ?: ""
+        val createdArg = createdAfter?.let { ", createdAt: {gte: \"$it\"}" } ?: ""
+        val query = """
+            { pages(sort: {key: RATING, order: DESC}, first: $first$afterArg,
+                filter: { url: {startsWith: "$enBranch"}, wikidotInfo: { tags: {eq: "$tag"}$createdArg } }) {
+                edges { node {
+                    url alternateTitles { title } wikidotInfo { title rating tags createdAt }
+                    translations { url alternateTitles { title } wikidotInfo { title rating tags createdAt } }
+                } }
+                pageInfo { endCursor hasNextPage }
+              } }
+        """.trimIndent()
+        val response = post(query, PagesData.serializer())?.pages
+            ?: throw IllegalStateException("无法读取 SCP 总站排行榜及翻译索引")
+        val ranked = response.edges.mapNotNull { edge ->
+            val original = edge.node.toItem() ?: return@mapNotNull null
+            val version = preferred.firstNotNullOfOrNull { host ->
+                (sequenceOf(edge.node) + edge.node.translations.asSequence())
+                    .firstOrNull { candidate -> candidate.url.startsWith("$host/") }
+                    ?.toItem()
+            } ?: return@mapNotNull null
+            version.copy(mainSiteRankScore = original.rating)
+        }
+        Page(ranked, response.pageInfo.endCursor, response.pageInfo.hasNextPage)
     }
 
     /** Fetch a single page's metadata + wikidot source markup (used as a scrape fallback). */
