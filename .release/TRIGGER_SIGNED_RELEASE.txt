@@ -1,2 +1,2 @@
-1.4.1-zh.2
-# Third run: fixed version parser to use first line only; Android v2 signature was valid.
+1.4.1-zh.3
+# Signed maintenance release: CROM search and filter fixes
