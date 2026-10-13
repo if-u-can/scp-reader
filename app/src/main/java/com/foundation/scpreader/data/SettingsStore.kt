@@ -35,6 +35,8 @@ data class Settings(
     /** Signed-in Wikidot session cookie + username (for in-app voting); blank when logged out. */
     val wikidotSession: String = "",
     val wikidotUser: String = "",
+    /** Reader-only character conversion; wiki sources and saved articles are unchanged. */
+    val readerScript: ReaderScriptMode = ReaderScriptMode.Simplified,
 )
 
 private val Context.dataStore by preferencesDataStore(name = "settings")
@@ -58,6 +60,7 @@ class SettingsStore(private val context: Context) {
         val whatsNewSeen = stringPreferencesKey("whats_new_seen")
         val wikidotSession = stringPreferencesKey("wikidot_session")
         val wikidotUser = stringPreferencesKey("wikidot_user")
+        val readerScript = stringPreferencesKey("reader_script")
     }
 
     val settings: Flow<Settings> = context.dataStore.data.map { p ->
@@ -79,6 +82,9 @@ class SettingsStore(private val context: Context) {
             whatsNewSeen = p[Keys.whatsNewSeen] ?: "",
             wikidotSession = p[Keys.wikidotSession] ?: "",
             wikidotUser = p[Keys.wikidotUser] ?: "",
+            readerScript = p[Keys.readerScript]
+                ?.let { runCatching { ReaderScriptMode.valueOf(it) }.getOrNull() }
+                ?: ReaderScriptMode.Simplified,
         )
     }
 
@@ -100,6 +106,7 @@ class SettingsStore(private val context: Context) {
             p[Keys.whatsNewSeen] = s.whatsNewSeen
             p[Keys.wikidotSession] = s.wikidotSession
             p[Keys.wikidotUser] = s.wikidotUser
+            p[Keys.readerScript] = s.readerScript.name
         }
     }
 }

@@ -64,6 +64,7 @@ class AppState(
     var seed by mutableStateOf(SeedKey.Violet)
 
     var fontScale by mutableStateOf(1f)
+    var readerScript by mutableStateOf(com.foundation.scpreader.data.ReaderScriptMode.Simplified)
     var loadImages by mutableStateOf(true)
     var wifiOnly by mutableStateOf(true)
     var downloadPref by mutableStateOf(DownloadPref.Ask)
@@ -249,6 +250,7 @@ class AppState(
     private fun applySettings(s: Settings) {
         themeMode = s.themeMode; dynamicColor = s.dynamicColor; amoled = s.amoled; seed = s.seed
         fontScale = s.fontScale; loadImages = s.loadImages; wifiOnly = s.wifiOnly
+        readerScript = s.readerScript
         downloadPref = s.downloadPref; autoDownloadBookmarks = s.autoDownloadBookmarks
         excludedClasses = s.excludedClasses; heroMode = s.heroMode
         sponsorCategories = s.sponsorCategories
@@ -266,6 +268,7 @@ class AppState(
         themeMode, dynamicColor, amoled, seed, fontScale, loadImages, wifiOnly,
         downloadPref, autoDownloadBookmarks, excludedClasses, heroMode, sponsorCategories,
         selectedBranches, whatsNewSeen, wikidotSession, wikidotUser,
+        readerScript,
     )
 
     /** Toggle any language division; never allow the final checked division to be removed. */

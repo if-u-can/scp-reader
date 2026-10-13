@@ -30,6 +30,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.animation.core.animateFloatAsState
@@ -78,6 +80,8 @@ import com.foundation.scpreader.AppState
 import com.foundation.scpreader.ReaderDlState
 import com.foundation.scpreader.data.ContentBlock
 import com.foundation.scpreader.data.ScpItem
+import com.foundation.scpreader.data.ReaderScriptMode
+import com.foundation.scpreader.data.ReaderScriptConverter
 import com.foundation.scpreader.ui.components.AppIcons
 import com.foundation.scpreader.ui.components.ClassBadgeIcon
 import com.foundation.scpreader.ui.components.Mono
@@ -111,6 +115,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
     // The tapped image (model + caption) shown in the full-screen zoomable lightbox; null = closed.
     var lightbox by remember(item.url) { androidx.compose.runtime.mutableStateOf<Pair<Any, String>?>(null) }
 
+    var scriptMenuOpen by remember { androidx.compose.runtime.mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val showScrollTop by remember { derivedStateOf { scrollState.value > 1200 } }
@@ -147,6 +152,33 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
             Spacer(Modifier.weight(1f))
             IconBtn(AppIcons.TextDecrease, 20) { app.decFont() }
             IconBtn(AppIcons.TextIncrease, 24) { app.incFont() }
+            Box {
+                Box(
+                    Modifier.size(44.dp).clip(CircleShape).clickable { scriptMenuOpen = true },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(app.readerScript.shortLabel, fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold, color = c.primary)
+                }
+                DropdownMenu(
+                    expanded = scriptMenuOpen,
+                    onDismissRequest = { scriptMenuOpen = false },
+                ) {
+                    ReaderScriptMode.entries.forEach { mode ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    (if (app.readerScript == mode) "✓ " else "") + mode.displayLabel
+                                )
+                            },
+                            onClick = {
+                                app.readerScript = mode
+                                scriptMenuOpen = false
+                            },
+                        )
+                    }
+                }
+            }
             IconBtn(AppIcons.Group, 24) { app.openRecommendSheet() }
             val bookmarked = app.readerBookmarked
             Box(Modifier.size(44.dp).clip(CircleShape).clickable { app.toggleReaderBookmark() }, contentAlignment = Alignment.Center) {
@@ -189,7 +221,7 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                         modifier = Modifier.padding(top = 6.dp).clip(RoundedCornerShape(8.dp)).background(classBg).padding(horizontal = 11.dp, vertical = 5.dp),
                     )
                     Text(item.number, fontFamily = Mono, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.primary, modifier = Modifier.padding(top = 18.dp))
-                    Text(item.displayTitle, fontSize = 30.sp, fontWeight = FontWeight.Medium, color = c.onSurface, lineHeight = 34.sp, modifier = Modifier.padding(top = 4.dp))
+                    Text(ReaderScriptConverter.text(item.displayTitle, app.readerScript), fontSize = 30.sp, fontWeight = FontWeight.Medium, color = c.onSurface, lineHeight = 34.sp, modifier = Modifier.padding(top = 4.dp))
 
                     app.translationSuggestion?.let { suggestion ->
                         Row(
@@ -255,7 +287,9 @@ fun ReaderScreen(app: AppState, item: ScpItem) {
                     }
 
                     // article body blocks
-                    val blocks = app.article?.blocks.orEmpty()
+                    val blocks = remember(app.article?.blocks, app.readerScript) {
+                        ReaderScriptConverter.blocks(app.article?.blocks.orEmpty(), app.readerScript)
+                    }
                     // Revealed redaction keys, reset per article.
                     val revealed = remember(item.url) { androidx.compose.runtime.mutableStateMapOf<String, Boolean>() }
                     val onReveal: (String) -> Unit = { k -> revealed[k] = revealed[k] != true }
@@ -803,7 +837,7 @@ private fun RelatedRow(app: AppState, r: ScpItem) {
             modifier = Modifier.clip(RoundedCornerShape(7.dp)).background(bg).padding(horizontal = 8.dp, vertical = 4.dp))
         Column(Modifier.weight(1f)) {
             Text(r.number, fontFamily = Mono, fontSize = 12.sp, color = c.primary)
-            Text(r.displayTitle, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(ReaderScriptConverter.text(r.displayTitle, app.readerScript), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Icon(AppIcons.NorthEast, null, Modifier.size(20.dp), tint = c.onSurfaceVariant)
     }

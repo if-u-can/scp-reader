@@ -125,6 +125,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("org.jsoup:jsoup:1.17.2")
 
+    // Offline phrase-aware simplified/traditional conversion (Apache-2.0, pure Java).
+    implementation("com.github.houbb:opencc4j:1.14.0")
+
     // Preferences DataStore (persisted settings)
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
