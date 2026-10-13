@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "22 4 * * *"
   workflow_dispatch:
+  # Validate a workflow fix immediately without waiting for the next daily schedule.
+  push:
+    branches: [zh-CN]
+    paths:
+      - ".github/workflows/upstream-release-watch.yml"
 
 permissions:
   contents: read
@@ -13,6 +18,8 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository for the baseline version file
+        uses: actions/checkout@v4
       - name: Check new upstream release and open a tracking issue
         env:
           GH_TOKEN: ${{ github.token }}
@@ -22,7 +29,14 @@ jobs:
           set -euo pipefail
           latest="$(gh api repos/ThePixelPro366/scp-reader/releases/latest --jq .tag_name)"
           baseline="$(cat .github/UPSTREAM_BASE_VERSION)"
-          if [[ -z "$latest" || "$latest" == "$baseline" ]]; then exit 0; fi
+          if [[ -z "$latest" ]]; then
+            echo "::error::The upstream release API returned an empty tag."
+            exit 1
+          fi
+          if [[ "$latest" == "$baseline" ]]; then
+            echo "No new upstream release (upstream and baseline are both $latest)."
+            exit 0
+          fi
           issue_title="[上游更新] SCP Reader $latest"
           existing="$(gh issue list --state all --limit 200 --json title --jq '.[].title' || true)"
           if printf '%s\n' "$existing" | grep -Fxq "$issue_title"; then
