@@ -1,0 +1,37 @@
+name: Verify SCP-CN search API
+
+on:
+  push:
+    branches: [zh-CN]
+    paths:
+      - ".github/workflows/search-api-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check CROM Chinese search and print response diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          for term in '记忆删除' '173'; do
+            echo "::group::Searching SCP-CN term: $term"
+            gql="{ searchPages(query: \"$term\", filter: { anyBaseUrl: [\"http://scp-wiki-cn.wikidot.com\"] }) { url wikidotInfo { title } } }"
+            jq -n --arg query "$gql" '{query: $query}' > request.json
+            curl --fail-with-body --location --silent --show-error --max-time 30 --retry 2 \
+              --header "Content-Type: application/json" \
+              --user-agent "SCP-Reader-ZH-SearchSmoke/1.0" \
+              --data-binary @request.json \
+              https://api.crom.avn.sh/graphql > response.json
+            jq -c '{errors: (.errors // []), count: (.data.searchPages // [] | length), sample: (.data.searchPages // [] | .[0].url // null)}' response.json
+            jq -e '((.errors // []) | length) == 0 and (.data.searchPages | type) == "array"' response.json
+            if ! jq -e '(.data.searchPages | length) > 0' response.json >/dev/null; then
+              echo "::error::SCP-CN search returned no matches for $term"
+              exit 1
+            fi
+            echo "::endgroup::"
+          done
