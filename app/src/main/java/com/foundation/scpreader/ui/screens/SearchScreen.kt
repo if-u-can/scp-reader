@@ -142,7 +142,7 @@ fun SearchScreen(app: AppState) {
                 SortSelector(app)
             }
             if (app.searchError != null) {
-                Text(app.searchError!!, color = c.error, fontSize = 14.sp,
+                Text(app.searchError!!, color = if (app.isDark) Color(0xFFFFB4AB) else Color(0xFFB3261E), fontSize = 14.sp,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp))
                 Text("点击重试", color = c.primary, modifier = Modifier.clip(RoundedCornerShape(16.dp))
                     .clickable { app.onSearchQuery(app.searchQuery) }.padding(horizontal = 20.dp, vertical = 6.dp))
