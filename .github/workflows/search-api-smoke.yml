@@ -20,7 +20,7 @@ jobs:
           set -euo pipefail
           for term in '记忆删除' '173'; do
             echo "::group::Searching SCP-CN term: $term"
-            gql="{ searchPages(query: \"$term\", filter: { anyBaseUrl: [\"http://scp-wiki-cn.wikidot.com\"] }) { url wikidotInfo { title } } }"
+            gql="{ searchPages(query: \"$term\", filter: { anyBaseUrl: [\"http://scp-wiki-cn.wikidot.com\"] }) { url alternateTitles { title } wikidotInfo { title rating tags createdAt } } }"
             jq -n --arg query "$gql" '{query: $query}' > request.json
             curl --fail-with-body --location --silent --show-error --max-time 30 --retry 2 \
               --header "Content-Type: application/json" \
