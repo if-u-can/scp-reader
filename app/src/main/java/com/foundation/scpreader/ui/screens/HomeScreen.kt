@@ -65,9 +65,9 @@ fun TypeChipRow(app: AppState, padding: Modifier) {
     val c = LocalScpScheme.current
     Row(padding.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         typeDefs.forEach { (k, label) ->
-            val active = app.typeFilter == k
+            val active = app.homeTypeFilter == k
             val st = c.chipStyle(active)
-            FilterChip(label, active, st.bg, st.fg, st.border) { app.setType(k) }
+            FilterChip(label, active, st.bg, st.fg, st.border) { app.setHomeType(k) }
         }
     }
 }
@@ -160,7 +160,7 @@ fun HomeScreen(app: AppState) {
 
         TypeChipRow(app, Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp).fillMaxWidth())
 
-        if (app.typeFilter == "series") SeriesPickerRow(app)
+        if (app.homeTypeFilter == "series") SeriesPickerRow(app)
 
         Row(
             Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 6.dp, bottom = 8.dp),

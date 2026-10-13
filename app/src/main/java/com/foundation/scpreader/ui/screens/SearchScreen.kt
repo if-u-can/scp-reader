@@ -141,6 +141,19 @@ fun SearchScreen(app: AppState) {
                 )
                 SortSelector(app)
             }
+            if (app.searchError != null) {
+                Text(app.searchError!!, color = c.error, fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp))
+                Text("点击重试", color = c.primary, modifier = Modifier.clip(RoundedCornerShape(16.dp))
+                    .clickable { app.onSearchQuery(app.searchQuery) }.padding(horizontal = 20.dp, vertical = 6.dp))
+            } else if (!app.searchLoading && results.isEmpty()) {
+                Text(
+                    if (filtersActive) "没有符合当前筛选条件的档案，可以重置筛选再试。"
+                    else "没有找到匹配的档案，请尝试 SCP 编号或其他关键词。",
+                    fontSize = 14.sp, color = c.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                )
+            }
             Column(Modifier.padding(horizontal = 16.dp)) { results.forEach { item -> ResultRow(app, item) } }
         }
     }
@@ -156,7 +169,9 @@ fun SearchScreen(app: AppState) {
 @Composable
 private fun SearchZeroState(app: AppState) {
     val c = LocalScpScheme.current
-    if (app.searchRecentlyViewed.isNotEmpty()) {
+    val filtersActive = app.typeFilter != "all" || app.classFilter != "any" || app.activeTags.isNotEmpty() || app.audioOnly
+    val catalog = app.filteredSearchTopRated
+    if (!filtersActive && app.searchRecentlyViewed.isNotEmpty()) {
         Row(
             Modifier.fillMaxWidth().padding(start = 20.dp, end = 12.dp, top = 16.dp, bottom = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -170,21 +185,26 @@ private fun SearchZeroState(app: AppState) {
         }
     }
 
-    SectionLabel("总站评分排行 · 已选分部档案")
+    SectionLabel(when (app.typeFilter) {
+        "tale" -> "故事 · 已选分部排行"
+        "goi" -> "相关组织 · 已选分部排行"
+        else -> "总站评分排行 · 已选分部档案"
+    })
     when {
         app.searchTopRatedLoading && app.searchTopRated.isEmpty() ->
             Box(Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) {
                 com.foundation.scpreader.ui.components.ScpSpinner(size = 48)
             }
-        app.searchTopRated.isNotEmpty() ->
+        catalog.isNotEmpty() ->
             Column(Modifier.padding(horizontal = 16.dp)) {
-                app.searchTopRated.forEach { item -> ResultRow(app, item) }
+                catalog.forEach { item -> ResultRow(app, item) }
             }
         else -> Text(
-            if (app.searchRecentlyViewed.isEmpty())
-                "输入关键词，检索基金会维基的异常项目、故事与相关组织档案。"
-            else
-                "暂时无法载入高评分档案。",
+            when {
+                app.searchTopRatedError -> "排行暂时无法加载，请检查网络后重试。"
+                filtersActive -> "当前筛选条件没有匹配的档案，请调整或重置筛选。"
+                else -> "暂无可显示的排行条目，可输入关键词搜索基金会档案。"
+            },
             fontSize = 14.sp, color = c.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
         )
