@@ -100,7 +100,9 @@ class AppState(
     var recommendNote by mutableStateOf("")
 
     var searchQuery by mutableStateOf("")
+    /** Search category is separate from the Home browse category. */
     var typeFilter by mutableStateOf("all")
+    var homeTypeFilter by mutableStateOf("all")
     var classFilter by mutableStateOf("any")
     var activeTags by mutableStateOf(listOf<String>())
     var searchFiltersOpen by mutableStateOf(false)
@@ -155,6 +157,7 @@ class AppState(
 
     var searchResults by mutableStateOf<List<ScpItem>>(emptyList()); private set
     var searchLoading by mutableStateOf(false); private set
+    var searchError by mutableStateOf<String?>(null); private set
     private var searchRaw = listOf<ScpItem>()
     private var searchJob: Job? = null
 
@@ -162,6 +165,8 @@ class AppState(
     var searchTopRated by mutableStateOf<List<ScpItem>>(emptyList()); private set
     var searchTopRatedLoading by mutableStateOf(false); private set
     var searchTopRatedError by mutableStateOf(false); private set
+    private var searchTopRatedJob: Job? = null
+    private var searchTopRatedSource = ""
 
     var article by mutableStateOf<Article?>(null); private set
     var articleLoading by mutableStateOf(false); private set
@@ -270,6 +275,9 @@ class AppState(
         selectedBranches = next
         repo.setBranches(com.foundation.scpreader.data.Branch.fromCodes(next))
         searchJob?.cancel()
+        searchTopRatedJob?.cancel()
+        searchTopRatedSource = ""
+        searchError = null
         searchRaw = emptyList()
         searchResults = emptyList()
         searchLoading = false
@@ -330,13 +338,13 @@ class AppState(
     }
 
     /** All/SCP → an infinite "Random entries" discover feed; Tales/GoI/Series → ranked CROM listing. */
-    val feedIsRandom: Boolean get() = typeFilter == "all" || typeFilter == "scp"
+    val feedIsRandom: Boolean get() = homeTypeFilter == "all" || homeTypeFilter == "scp"
 
     /** Switch which series the Home "Series" filter lists, reloading the feed if it's active. */
     fun selectFeedSeries(n: Int) {
         if (feedSeries == n) return
         feedSeries = n
-        if (screen == Screen.Home && typeFilter == "series") loadFeed()
+        if (screen == Screen.Home && homeTypeFilter == "series") loadFeed()
     }
 
     /** Re-check connectivity; call before/around network work so the Home banner stays current. */
@@ -363,7 +371,7 @@ class AppState(
                     }
                     .onFailure { if (repo.sourceSignature() == source) feedError = it.message ?: "随机档案加载失败" }
             } else {
-                runCatching { repo.topRated(tag = feedTagFor(typeFilter), after = feedCursor) }
+                runCatching { repo.topRated(tag = feedTagFor(homeTypeFilter), after = feedCursor) }
                     .onSuccess { page ->
                         if (repo.sourceSignature() != source) return@onSuccess
                         feedRaw = feedRaw + page.items
@@ -397,11 +405,24 @@ class AppState(
     }
     fun selectRandomSeries(n: Int) { randomSeries = n }
 
+    /** Home uses a separate category state; it must not accidentally filter search results. */
+    fun setHomeType(t: String) {
+        if (homeTypeFilter == t) return
+        homeTypeFilter = t
+        if (screen == Screen.Home) loadFeed()
+    }
+
     fun setType(t: String) {
         if (typeFilter == t) return
         typeFilter = t
-        if (screen == Screen.Home) loadFeed()
         applySearchFilters()
+        // The empty-query catalog must also reload for Tales or GoI selections.
+        searchTopRatedJob?.cancel()
+        searchTopRatedLoading = false
+        searchTopRated = emptyList()
+        searchTopRatedError = false
+        searchTopRatedSource = ""
+        if (searchQuery.isBlank()) loadSearchTopRated()
     }
 
     /** Toggle the "narrated only" filter on the random discover feed. */
@@ -414,8 +435,16 @@ class AppState(
     fun onSearchQuery(q: String) {
         searchQuery = q
         searchJob?.cancel()
-        if (q.isBlank()) { searchRaw = emptyList(); searchResults = emptyList(); searchLoading = false; return }
+        if (q.isBlank()) {
+            searchRaw = emptyList()
+            searchResults = emptyList()
+            searchError = null
+            searchLoading = false
+            loadSearchTopRated()
+            return
+        }
         searchLoading = true
+        searchError = null
         val source = repo.sourceSignature()
         searchJob = viewModelScope.launch {
             kotlinx.coroutines.delay(280) // debounce
@@ -423,7 +452,11 @@ class AppState(
             // An old network request must never repopulate a newly selected branch.
             if (repo.sourceSignature() != source || searchQuery != q) return@launch
             result.onSuccess { searchRaw = it; applySearchFilters() }
-                .onFailure { searchRaw = emptyList(); searchResults = emptyList() }
+                .onFailure { error ->
+                    searchRaw = emptyList()
+                    searchResults = emptyList()
+                    searchError = "检索失败：${error.message ?: "网络服务不可用"}"
+                }
             searchLoading = false
         }
     }
@@ -446,29 +479,47 @@ class AppState(
      * falls back to recents / a message rather than crashing.
      */
     fun loadSearchTopRated() {
-        if (searchTopRated.isNotEmpty() || searchTopRatedLoading) return
+        val source = repo.sourceSignature() + "|" + typeFilter
+        if (searchTopRatedSource == source && (searchTopRated.isNotEmpty() || searchTopRatedLoading)) return
+        searchTopRatedJob?.cancel()
+        searchTopRatedSource = source
+        searchTopRated = emptyList()
         searchTopRatedLoading = true
         searchTopRatedError = false
-        val source = repo.sourceSignature()
-        viewModelScope.launch {
-            val result = runCatching { repo.mainSiteRanked(tag = "scp", first = 48) }
-            if (repo.sourceSignature() != source) return@launch
-            result.onSuccess { searchTopRated = it.items.take(12) }
+        val category = typeFilter
+        searchTopRatedJob = viewModelScope.launch {
+            val result = runCatching {
+                when (category) {
+                    "tale" -> repo.topRated(tag = "tale", first = 60)
+                    "goi" -> repo.topRated(tag = "goi-format", first = 60)
+                    else -> repo.mainSiteRanked(tag = "scp", first = 80)
+                }
+            }
+            if (repo.sourceSignature() + "|" + typeFilter != source) return@launch
+            result.onSuccess { searchTopRated = it.items }
                 .onFailure { searchTopRatedError = true }
             searchTopRatedLoading = false
         }
     }
 
+    /** Shared predicate: the idle catalog and typed search obey the same filters. */
+    private fun matchesSearchFilters(item: ScpItem): Boolean =
+        (typeFilter == "all" || item.typeLabel.equals(typeFilter, ignoreCase = true) ||
+            (typeFilter == "goi" && item.typeLabel == "GoI")) &&
+        (classFilter == "any" || item.objectClass.equals(classFilter, ignoreCase = true)) &&
+        (activeTags.isEmpty() || activeTags.any { it in item.tags }) &&
+        (!audioOnly || item.podcast)
+
+    val filteredSearchTopRated: List<ScpItem>
+        get() = repo.decorate(searchTopRated).filter(::matchesSearchFilters).let { items ->
+            when (searchSort) {
+                SortMode.Newest -> items.sortedByDescending { it.createdAt ?: "" }
+                SortMode.Rating, SortMode.Relevance -> items
+            }
+        }.take(12)
+
     fun applySearchFilters() {
-        val filtered = repo.decorate(searchRaw).filter { item ->
-            (typeFilter == "all" || item.typeLabel.equals(typeFilter, true) ||
-                (typeFilter == "scp" && item.typeLabel == "SCP") ||
-                (typeFilter == "tale" && item.typeLabel == "Tale") ||
-                (typeFilter == "goi" && item.typeLabel == "GoI")) &&
-                (classFilter == "any" || item.objectClass == classFilter) &&
-                (activeTags.isEmpty() || activeTags.any { item.tags.contains(it) }) &&
-                (!audioOnly || item.podcast)
-        }
+        val filtered = repo.decorate(searchRaw).filter(::matchesSearchFilters)
         searchResults = when (searchSort) {
             SortMode.Relevance -> filtered // keep the search's own relevance order
             SortMode.Rating -> filtered.sortedByDescending { it.rating }
