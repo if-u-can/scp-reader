@@ -10,7 +10,7 @@
 - [zh-CN 分支](https://github.com/if-u-can/scp-reader/tree/zh-CN)：汉化源代码。
 - [自动构建](https://github.com/if-u-can/scp-reader/actions/workflows/zh-cn-build.yml)：开发测试用 APK。
 
-**当前正式版为 `v1.4.1-zh.3`**，已使用固定签名，后续使用相同签名发布的正式版可直接覆盖升级。旧版 `v1.4.1-zh.1` 预览版使用临时签名，转入正式版前请先备份数据并重新安装。
+**当前正式版为 `v1.4.1-zh.4`**，已使用固定签名，后续使用相同签名发布的正式版可直接覆盖升级。旧版 `v1.4.1-zh.1` 预览版使用临时签名，转入正式版前请先备份数据并重新安装。
 
 ## 汉化内容
 

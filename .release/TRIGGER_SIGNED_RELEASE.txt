@@ -1,2 +1,2 @@
-1.4.1-zh.3
-# Signed maintenance release: CROM search and filter fixes
+1.4.1-zh.4
+# Stable release: offline simplified/traditional/original reader modes
