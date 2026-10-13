@@ -25,7 +25,11 @@ class CromApi(private val client: OkHttpClient) {
     private val enBranch = "http://scp-wiki.wikidot.com"
 
     // ---- GraphQL wire models ----
-    @Serializable private data class Envelope<T>(val data: T? = null)
+    @Serializable private data class GraphqlError(val message: String = "GraphQL request failed")
+    @Serializable private data class Envelope<T>(
+        val data: T? = null,
+        val errors: List<GraphqlError> = emptyList(),
+    )
     @Serializable private data class WikidotInfo(
         val title: String? = null,
         val rating: Int? = null,
@@ -94,10 +98,12 @@ class CromApi(private val client: OkHttpClient) {
         val escaped = queryText.replace("\\", "").replace("\"", "")
         val out = LinkedHashMap<String, ScpItem>()
         for (host in hosts) {
-            val query = """{ searchPages(query: "$escaped", filter: { anyBaseUrl: "$host" }) { url alternateTitles { title } wikidotInfo { title rating tags createdAt } } }"""
-            post(query, SearchData.serializer())?.searchPages
-                ?.filter { it.url.startsWith(host) }
-                ?.forEach { n -> n.toItem()?.let { out.putIfAbsent(it.url, it) } }
+            val query = """{ searchPages(query: "$escaped", filter: { anyBaseUrl: ["$host"] }) { url alternateTitles { title } wikidotInfo { title rating tags createdAt } } }"""
+            val response = post(query, SearchData.serializer())
+                ?: throw IllegalStateException("检索接口没有返回数据")
+            response.searchPages
+                .filter { it.url.substringAfter("://").startsWith(host.substringAfter("://") + "/") }
+                .forEach { n -> n.toItem()?.let { out.putIfAbsent(it.url, it) } }
         }
         out.values.toList()
     }
@@ -215,9 +221,13 @@ class CromApi(private val client: OkHttpClient) {
         val bodyJson = json.encodeToString(RequestPayload.serializer(), RequestPayload(query))
         val request = Request.Builder().url(endpoint).post(bodyJson.toRequestBody(jsonMedia)).build()
         client.newCall(request).execute().use { resp ->
-            if (!resp.isSuccessful) return null
-            val text = resp.body?.string() ?: return null
-            return json.decodeFromString(Envelope.serializer(serializer), text).data
+            if (!resp.isSuccessful) throw java.io.IOException("CROM 检索接口 HTTP ${resp.code}")
+            val text = resp.body?.string() ?: throw java.io.IOException("CROM 返回空响应")
+            val envelope = json.decodeFromString(Envelope.serializer(serializer), text)
+            if (envelope.errors.isNotEmpty()) {
+                throw IllegalStateException(envelope.errors.joinToString("; ") { it.message }.take(220))
+            }
+            return envelope.data
         }
     }
 
