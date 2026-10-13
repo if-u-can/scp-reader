@@ -208,14 +208,35 @@ class ScpRepository(
     }
 
     suspend fun search(query: String): List<ScpItem> {
-        // Token search first (exact numbers, titles, words), then number-prefix matches so a
-        // partial number like "scp 0" or "17" narrows the archive by rating instead of returning
-        // nothing. Merge keeps the more-relevant token/exact hits ahead of prefix results.
-        val hosts = branches.map { it.host }
+        // Text search and number lookups are independent: if CROM's text search errors,
+        // SCP-number lookups must still have a chance to return a valid article.
+        val hosts = selectedSources().map { it.host }
         val merged = LinkedHashMap<String, ScpItem>()
-        crom.search(query, hosts).forEach { merged[it.url] = it }
-        Regex("\\d+").find(query)?.value?.let { digits ->
-            crom.searchByNumberPrefix(digits, hosts = hosts).forEach { merged.putIfAbsent(it.url, it) }
+        val textRequest = runCatching { crom.search(query.trim(), hosts) }
+        textRequest.getOrNull()?.forEach { merged[it.url] = it }
+
+        val digits = Regex("\\d+").find(query)?.value
+        var numberError: Throwable? = null
+        if (digits != null) {
+            val prefix = runCatching { crom.searchByNumberPrefix(digits, hosts = hosts) }
+            prefix.getOrNull()?.forEach { merged.putIfAbsent(it.url, it) }
+            numberError = prefix.exceptionOrNull()
+
+            // An exact SCP ID should remain searchable even if the token or prefix
+            // index misses it; query the matching record in each selected division.
+            if (digits.length >= 3 && merged.isEmpty()) {
+                val slug = "scp-" + digits.padStart(3, '0')
+                hosts.forEach { host ->
+                    runCatching { crom.detail("$host/$slug")?.first }
+                        .getOrNull()?.let { merged.putIfAbsent(it.url, it) }
+                }
+            }
+        }
+        if (merged.isEmpty() && textRequest.isFailure && (digits == null || numberError != null)) {
+            throw IllegalStateException(
+                "无法连接检索服务：${textRequest.exceptionOrNull()?.message ?: numberError?.message ?: "未知错误"}",
+                textRequest.exceptionOrNull() ?: numberError,
+            )
         }
         val results = merged.values.toList()
         recordTags(results)
